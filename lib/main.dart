@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:radio_app/home.dart';
-import 'package:radio_app/podcasts.dart';
-import 'login.dart';
-import 'constants.dart';
+import 'package:radio_app/Screens/login.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

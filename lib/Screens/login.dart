@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:radio_app/ApiController.dart';
 import 'package:radio_app/Components/button.dart';
-import 'package:radio_app/Widgets/loading.dart';
-import 'package:radio_app/home.dart';
-import 'package:radio_app/register.dart';
-import 'Widgets/FormCard.dart';
-import 'Widgets/SocialIcons.dart';
-import 'CustomIcons.dart';
+import 'package:radio_app/Screens/home.dart';
+import 'package:radio_app/Screens/register.dart';
+import 'package:radio_app/Services/ApiController.dart';
+import 'package:radio_app/Widgets/CustomIcons.dart';
+import 'package:radio_app/Widgets/FormCard.dart';
+import 'package:radio_app/Widgets/SocialIcons.dart';
+
 
 class Login extends StatefulWidget {
   @override

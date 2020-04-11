@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:radio_app/message.dart';
-import 'package:radio_app/play.dart';
+import 'package:radio_app/Models/message.dart';
+import 'package:radio_app/Screens/play.dart';
 
 class MessageDetail extends StatefulWidget {
   final Data data;
