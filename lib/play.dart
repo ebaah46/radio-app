@@ -17,10 +17,6 @@ import 'message.dart';
 
 typedef void OnError(Exception exception);
 
-const kUrl =
-    "https://radio-app-api.s3.us-east-2.amazonaws.com/audios/This_test_22%3A03%3A11.mp3";
-const kUrl2 = "http://www.rxlabz.com/labz/audio.mp3";
-
 enum PlayerState { stopped, playing, paused }
 
 class Play extends StatefulWidget {
@@ -38,6 +34,7 @@ class _PlayState extends State<Play> {
   String id = '';
   Color favColor = Colors.white;
   AudioPlayer audioPlayer;
+  String kUrl = "";
 
   String localFilePath;
 
@@ -61,6 +58,7 @@ class _PlayState extends State<Play> {
   void initState() {
     super.initState();
     initAudioPlayer();
+    kUrl = widget.data.message;
   }
 
   @override
@@ -409,7 +407,13 @@ class _PlayState extends State<Play> {
                 icon: Icon(Icons.share),
                 onPressed: () {
                   // _audioPlayerStateSubscription.resume();
-                  Share.share('Share this message with others');
+                  String message = 'Listen to the Latest message titled: ' +
+                      widget.data.title +
+                      ' by ' +
+                      widget.data.author +
+                      ' using the link provided below.\n' +
+                      widget.data.message;
+                  Share.share(message);
                 }),
           ],
         ),

@@ -4,18 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:isolate/isolate_runner.dart';
 import 'dart:convert';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
+import 'package:radio_app/ApiController.dart';
 
 import 'package:radio_app/message.dart';
 import 'package:radio_app/messageDetail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:http/http.dart' as http;
 
 Dio dio = new Dio();
 // Fetch messages from API
-Future<List<Data>> fetchMessages([howMany = 5]) async {
-  Response response = await dio.get(
-    'https://radio-api.herokuapp.com/api/messages/index',
-  );
-
+Future<List<Data>> fetchMessages(String token) async {
+  print(token);
+  Response response =
+      await dio.get('https://radio-api.herokuapp.com/api/messages/index',
+          options: Options(headers: {
+            'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }));
+  print(response);
   if (response.statusCode == 200) {
     String messageString = jsonEncode(response.data);
     Map messageMap = json.decode(messageString);
@@ -34,14 +41,18 @@ Future<List<Data>> fetchMessages([howMany = 5]) async {
 
 // Fetch Messages in background
 
-Future<List<Data>> fetchMessageInBackground(int count) async {
+Future<List<Data>> fetchMessageInBackground() async {
+  ApiController _apiController = ApiController();
+  String _token = await _apiController.getTokenDetails();
   final runner = await IsolateRunner.spawn();
-  return runner.run(fetchMessages, count).whenComplete(() => runner.close());
+  return runner.run(fetchMessages, _token).whenComplete(() => runner.close());
 }
 
 // Load Messages into stream
-loadMessages() async {
-  fetchMessages().then((res) async {
+loadMessages(String token) async {
+  SharedPreferences _prefs = await SharedPreferences.getInstance();
+  String token = _prefs.getString('token');
+  fetchMessages(token).then((res) async {
     return res;
   });
 }
@@ -55,6 +66,12 @@ class Podcasts extends StatefulWidget {
 
 class _PodcastsState extends State<Podcasts> {
   final GlobalKey<ScaffoldState> _globalKey = new GlobalKey<ScaffoldState>();
+  String token = '';
+
+// Get auth token
+  Future<String> getToken() async {
+    // return token;
+  }
 
 // Show Snackbar
   showInfo(String note) {
@@ -63,7 +80,8 @@ class _PodcastsState extends State<Podcasts> {
 
   // refresh handling function
   Future<Null> _handleRefresh() async {
-    fetchMessageInBackground(5).then((res) async {
+    getToken();
+    fetchMessageInBackground().then((res) async {
       showInfo('Messages loaded successfully');
       return null;
     });
@@ -71,9 +89,10 @@ class _PodcastsState extends State<Podcasts> {
 
   @override
   void initState() {
-    loadMessages();
+    // loadMessages(token);
 
     super.initState();
+    // token = getToken();
   }
 
   @override
@@ -82,7 +101,7 @@ class _PodcastsState extends State<Podcasts> {
       key: _globalKey,
       body: FutureBuilder<List<Data>>(
           // stream: _streamController.stream,
-          future: fetchMessageInBackground(10),
+          future: fetchMessageInBackground(),
           builder: (context, snapshot) {
             print('Has error: ${snapshot.hasError}');
             print('Has data: ${snapshot.hasData}');
@@ -147,7 +166,7 @@ class _PodcastsState extends State<Podcasts> {
           decoration: new BoxDecoration(
               border: new Border(
                   right: new BorderSide(width: 1.0, color: Colors.white24))),
-          child: Icon(Icons.autorenew, color: Colors.white),
+          child: Icon(Icons.message, color: Colors.white),
         ),
         title: Text(
           data.title,
