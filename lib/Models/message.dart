@@ -33,6 +33,7 @@ class Data {
       this.picture,
       this.title});
   factory Data.fromJson(Map<String, dynamic> json) {
+    print(json['picture'].runtimeType);
     return Data(
         author: json['author'] as String,
         date: json['date'] as String,
@@ -40,6 +41,17 @@ class Data {
         id: json['id'] as int,
         message: json['message_file'] as String,
         picture: json['message_picture'] as String,
+        title: json['title'] as String);
+  }
+  factory Data.fromDB(Map<String, dynamic> json) {
+    print(json['picture'].runtimeType);
+    return Data(
+        author: json['author'] as String,
+        date: json['date'] as String,
+        description: json['description'] as String,
+        id: json['id'] as int,
+        message: json['message'] as String,
+        picture: json['picture'] as String,
         title: json['title'] as String);
   }
   Map<String, dynamic> toMap() => {

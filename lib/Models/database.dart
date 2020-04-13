@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:radio_app/Models/message.dart';
@@ -47,7 +48,7 @@ class MessageDatabaseProvider {
   Future<List<Data>> getAllMessages() async {
     final db = await database;
     var res = await db.query('Message');
-    List<Data> messages = res.map((f) => Data.fromJson(f)).toList();
+    List<Data> messages = res.map((f) => Data.fromDB(f)).toList();
     return messages;
   }
 

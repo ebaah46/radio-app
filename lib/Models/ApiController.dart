@@ -88,7 +88,7 @@ class ApiController {
         int res = await MessageDatabaseProvider.db.addMessagetoDB(object);
 
         print('Saving to database complete with result');
-        print(res);
+        // print(res);
       }
     }
     // Setting the fetchedMessagesState

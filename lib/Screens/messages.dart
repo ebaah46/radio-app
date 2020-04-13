@@ -98,6 +98,7 @@ class _MessagesState extends State<Messages> {
   }
 
   Widget listTile(Data data) {
+    // print(data.picture);
     return ListTile(
         contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
         leading: Container(
