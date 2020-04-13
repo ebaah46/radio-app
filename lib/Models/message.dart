@@ -42,4 +42,13 @@ class Data {
         picture: json['message_picture'] as String,
         title: json['title'] as String);
   }
+  Map<String, dynamic> toMap() => {
+        'author': author,
+        'date': date,
+        'description': description,
+        'id': id,
+        'message': message,
+        'picture': picture,
+        'title': title
+      };
 }

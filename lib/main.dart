@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:radio_app/Models/ApiController.dart';
 import 'package:radio_app/Screens/login.dart';
+import 'package:radio_app/Screens/messages.dart';
+import 'package:radio_app/bloc/messagebloc_bloc.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,6 +22,11 @@ class MyApp extends StatelessWidget {
             primaryColor: Color(0xFF4868D8),
             fontFamily: "Montserrat",
             canvasColor: Colors.transparent),
+        // home: BlocProvider(
+        //   create: (BuildContext context) =>
+        //       MessageblocBloc(apiController: ApiController()),
+        //   child: Messages(),
+        // )
         home: Login());
   }
 }

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:radio_app/Models/ApiController.dart';
+import 'package:radio_app/Screens/messages.dart';
 import 'package:radio_app/Screens/podcasts.dart';
+import 'package:radio_app/bloc/messagebloc_bloc.dart';
 import 'package:radio_app/live.dart';
 
 class HomePage extends StatefulWidget {
@@ -43,8 +47,14 @@ class _HomePageState extends State<HomePage> {
                       Tab(icon: Icon(Icons.favorite))
                     ],
                   )),
-              body: TabBarView(
-                  children: [Text('Nothing'), Podcasts(), Container()]),
+              body: TabBarView(children: [
+                Text('Nothing'),
+                BlocProvider(
+                    create: (BuildContext context) =>
+                        MessageblocBloc(apiController: ApiController()),
+                    child: Messages()),
+                Container()
+              ]),
             )));
   }
 

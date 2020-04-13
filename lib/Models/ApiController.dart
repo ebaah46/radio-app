@@ -1,13 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:radio_app/Models/database.dart';
 import 'package:radio_app/Models/message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class ApiController {
-  Response _response;
   Dio _dio;
   String _token;
-
   ApiController() {
     _dio = Dio();
   }
@@ -56,11 +55,12 @@ class ApiController {
   }
 
   // Fetch messages from API
-  Future<List<Data>> fetchMessages([howMany = 5]) async {
+  Future<List<Data>> fetchMessages() async {
     String token = await getTokenDetails();
     Message message;
+    Response _response;
     print('About to fetch messages');
-    Response response = await _dio
+    await _dio
         .get('https://radio-api.herokuapp.com/api/messages/index',
             options: Options(headers: {
               'Authorization': 'Bearer $token',
@@ -69,22 +69,37 @@ class ApiController {
             }))
         .then((response) {
       print(response);
+      _response = response;
       if (response.statusCode == 200) {
         String messageString = jsonEncode(response.data);
         Map messageMap = json.decode(messageString);
 
         message = Message.fromJson(messageMap);
-        // for (var details in message.data) {}
-        // print()
       } else {
         throw Exception('Failed to load messages');
       }
     }).catchError((error) {
       print(error);
     });
+    if (_response.statusCode == 200) {
+      // Loop through messages
+      for (var object in message.data) {
+        // Storing data in sqlite database
+        int res = await MessageDatabaseProvider.db.addMessagetoDB(object);
 
+        print('Saving to database complete with result');
+        print(res);
+      }
+    }
+    // Setting the fetchedMessagesState
+    setFetchedMessagesState(true);
     return message.data;
     // print(response);
+  }
+
+  Future<List<Data>> fetchMessagesfromDB() async {
+    List<Data> messages = await MessageDatabaseProvider.db.getAllMessages();
+    return messages;
   }
 
   Future<void> storeTokenDetails(
@@ -99,5 +114,16 @@ class ApiController {
     final _prefs = await SharedPreferences.getInstance();
     String token = _prefs.getString('token');
     return token;
+  }
+
+  Future<void> setFetchedMessagesState(bool fetchMessagesState) async {
+    final _prefs = await SharedPreferences.getInstance();
+    _prefs.setBool('fetchMessageState', fetchMessagesState);
+  }
+
+  Future<bool> get fetchedMessagesState async {
+    final _prefs = await SharedPreferences.getInstance();
+    bool fetchMessagesState = _prefs.getBool('fetchMessageState') ?? false;
+    return fetchMessagesState;
   }
 }
