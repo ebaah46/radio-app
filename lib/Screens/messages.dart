@@ -6,7 +6,6 @@ import 'package:radio_app/Screens/messageDetail.dart';
 import 'package:radio_app/bloc/messagebloc_bloc.dart';
 
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:radio_app/bloc/reloadmessage_bloc.dart';
 
 class Messages extends StatefulWidget {
   @override
@@ -89,7 +88,8 @@ class _MessagesState extends State<Messages> {
               margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
               child: Container(
                   decoration:
-                      BoxDecoration(color: Color.fromRGBO(64, 75, 96, .9)),
+                      // Color.fromRGBO(64, 75, 96, .9)
+                      BoxDecoration(color: Colors.white),
                   child: listTile(messages[index])));
         },
       ),
@@ -99,41 +99,42 @@ class _MessagesState extends State<Messages> {
   Widget listTile(Data data) {
     // print(data.picture);
     return ListTile(
-        contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-        leading: Container(
-          padding: EdgeInsets.only(right: 12.0),
-          decoration: new BoxDecoration(
-              border: new Border(
-                  right: new BorderSide(width: 1.0, color: Colors.white24))),
-          child: Icon(Icons.message, color: Colors.white),
-        ),
-        title: Text(
-          data.title,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        // subtitle: Text("Intermediate", style: TextStyle(color: Colors.white)),
+      contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+      leading: Container(
+        padding: EdgeInsets.only(right: 12.0),
+        decoration: new BoxDecoration(
+            border: new Border(
+                right: new BorderSide(width: 1.0, color: Colors.black26))),
+        child: Icon(Icons.message, color: Colors.black54),
+      ),
+      title: Text(
+        data.title,
+        style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+      ),
+      // subtitle: Text("Intermediate", style: TextStyle(color: Colors.white)),
 
-        subtitle: Row(
-          children: <Widget>[
-            Icon(
-              Icons.border_color,
-              color: Colors.yellowAccent,
-              size: 12,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Text(data.author, style: TextStyle(color: Colors.white)),
-            )
-          ],
-        ),
-        trailing: IconButton(
-          icon:
-              Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0),
-          onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => MessageDetail(data)));
-          },
-        ));
+      subtitle: Row(
+        children: <Widget>[
+          Icon(
+            Icons.border_color,
+            color: Colors.black54,
+            size: 12,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Text(data.author, style: TextStyle(color: Colors.black)),
+          )
+        ],
+      ),
+      trailing: IconButton(
+        icon: Icon(Icons.keyboard_arrow_right, color: Colors.black, size: 30.0),
+        onPressed: () {},
+      ),
+      onTap: () {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => MessageDetail(data)));
+      },
+    );
   }
 
   Widget isLoading() {

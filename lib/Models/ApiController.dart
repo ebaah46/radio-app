@@ -126,4 +126,38 @@ class ApiController {
     bool fetchMessagesState = _prefs.getBool('fetchMessageState') ?? false;
     return fetchMessagesState;
   }
+
+  Future<void> setFavoriteMessagesState(bool favoriteState) async {
+    final _prefs = await SharedPreferences.getInstance();
+    _prefs.setBool('favoriteState', favoriteState);
+  }
+
+  Future<bool> get favoriteMessageState async {
+    final _prefs = await SharedPreferences.getInstance();
+    bool favoriteState = _prefs.getBool('favoriteState') ?? false;
+    return favoriteState;
+  }
+
+  Future<List<int>> get favoriteMessagesIds async {
+    // State to control whether favories are empty or not
+    final _prefs = await SharedPreferences.getInstance();
+    List<String> stringIds = _prefs.getStringList('favorites');
+    // Convert String ids to integers
+    List<int> intIds = List();
+    if (stringIds.isEmpty)
+      setFavoriteMessagesState(false);
+    else {
+      setFavoriteMessagesState(true);
+      for (var item in stringIds) {
+        intIds.add(int.tryParse(item));
+      }
+    }
+    return intIds;
+  }
+
+  Future<List<Data>> get favoriteMessages async {
+    // Collect Integer ids
+    List<int> ids = await favoriteMessagesIds;
+    return await MessageDatabaseProvider.db.getMessages(ids);
+  }
 }

@@ -58,7 +58,13 @@ class MessageDatabaseProvider {
     return res.isNotEmpty ? Data.fromDB(res.first) : null;
   }
 
-  Future<Data> addToFavorites(int id) async {
+  Future<List<Data>> getMessages(List<int> ids) async {
     final db = await database;
+    var res = await db.query('Message', where: 'id=?', whereArgs: ids);
+    return res.isNotEmpty ? res.map((f) => Data.fromDB(f)).toList() : null;
   }
+
+  // Future<Data> addToFavorites(int id) async {
+  //   final db = await database;
+  // }
 }
