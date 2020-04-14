@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
@@ -13,6 +15,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 typedef void OnError(Exception exception);
 
@@ -143,7 +146,7 @@ class _PlayState extends State<Play> {
             print('_loadFile => exception $exception'));
 
     final dir = await getApplicationDocumentsDirectory();
-    final file = new File('${dir.path}/audio.mp3');
+    final file = new File('${dir.path}/${widget.data.title}.mp3');
 
     await file.writeAsBytes(bytes);
     if (await file.exists())
@@ -157,51 +160,109 @@ class _PlayState extends State<Play> {
     return _globalKey.currentState.showSnackBar(SnackBar(content: Text(note)));
   }
 
+  // Add to favorites
+  Future<void> storeFavorites(List<String> id) async {
+    final _prefs = await SharedPreferences.getInstance();
+    _prefs.setStringList('favorites', id);
+  }
+
+  // Button payload to add each message to string
+  Future addToFavorites(int id) async {
+    // Convert all ids to string first
+    String _id = id.toString();
+    // Add to favorites list
+    List<String> favorites = List();
+    favorites.add(_id);
+    try {
+      // Persist on storage
+      await storeFavorites(favorites);
+      print('Added to favorites');
+    } catch (e) {
+      // Print error for now
+      print(e.toString());
+    }
+  }
+
+  // Button payload to remove message from favorites
+  Future removeFromFavorites(int id) async {
+    String _id = id.toString();
+    // Add to favorites list
+    List<String> favorites = List();
+    favorites.remove(_id);
+    try {
+      // Persist on storage
+      await storeFavorites(favorites);
+      print('Removed from favorites');
+    } catch (e) {
+      // Print error for now
+      print(e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _globalKey,
-      appBar: AppBar(
-        elevation: 0,
-        title: Text(
-          "Player",
-          style: TextStyle(
-            fontSize: 16,
-          ),
+    return Dismissible(
+      key: Key('player'),
+      direction: DismissDirection.down,
+      onDismissed: (direction) {
+        Navigator.pop(context);
+      },
+      child: Scaffold(
+        key: _globalKey,
+        appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            centerTitle: true,
+            title: Text('Now Playing')),
+        backgroundColor: Colors.transparent,
+        // Theme.of(context).primaryColor,
+        body: Stack(
+          fit: StackFit.expand,
+          children: <Widget>[
+            blurWidget(widget.data),
+            blurFilter(),
+            Center(child: _buildMusicUI()),
+          ],
         ),
-      ),
-      backgroundColor: Theme.of(context).primaryColor,
-      body: Stack(
-        children: <Widget>[
-          Align(
-            child: _buildBackgroundBox(),
-            alignment: Alignment.center,
-          ),
-          Align(
-            child: _buildMusicUI(),
-            alignment: Alignment.center,
-          ),
-        ],
       ),
     );
   }
 
-  Widget _buildBackgroundBox() {
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: Container(
-            color: kYellow,
-            height: 200,
-          ),
-        ),
-        Expanded(
-          child: Container(
-            color: kBlue,
-            height: 200,
-          ),
-        ),
-      ],
+  // Widget _buildBackgroundBox() {
+  //   return Container();
+  // }
+
+  Widget blurWidget(Data data) {
+    var f = data.picture == null
+        ? null
+        : new NetworkImage(data.picture, scale: 1.0);
+    return new Hero(
+      tag: data.author,
+      child: new Container(
+        child: f != null
+            // ignore: conflicting_dart_import
+            ? new Image(
+                image: f,
+                fit: BoxFit.cover,
+                color: Colors.black54,
+                colorBlendMode: BlendMode.darken,
+              )
+            : new Image(
+                image: new AssetImage("assets/background1.jpeg"),
+                color: Colors.black54,
+                fit: BoxFit.cover,
+                colorBlendMode: BlendMode.darken,
+              ),
+      ),
+    );
+  }
+
+  Widget blurFilter() {
+    return new BackdropFilter(
+      filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+      child: new Container(
+        decoration: new BoxDecoration(color: Colors.black87.withOpacity(0.1)),
+      ),
     );
   }
 
@@ -215,7 +276,7 @@ class _PlayState extends State<Play> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              _buildSongInfo(),
+              Center(child: _buildSongInfo(widget.data)),
               _buildArtistCoverPic(),
               _buildSongNameCard(),
               _buildSongProgress(),
@@ -227,10 +288,10 @@ class _PlayState extends State<Play> {
     );
   }
 
-  Widget _buildSongInfo() {
+  Widget _buildSongInfo(Data data) {
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      width: 200,
+      margin: EdgeInsets.only(bottom: 20),
+      width: double.infinity,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
@@ -242,10 +303,10 @@ class _PlayState extends State<Play> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  "Author",
+                  data.title,
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 12,
+                    fontSize: 18,
                   ),
                 ),
                 SizedBox(
@@ -254,7 +315,7 @@ class _PlayState extends State<Play> {
                 Text(
                   widget.data.author,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 12,
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
@@ -282,9 +343,8 @@ class _PlayState extends State<Play> {
 
   Widget _buildArtistCoverPic() {
     return ClipRRect(
-      borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(24),
-        bottomRight: Radius.circular(24),
+      borderRadius: BorderRadius.all(
+        Radius.circular(5),
       ),
       child: Image.network(
         widget.data.picture,
@@ -297,38 +357,65 @@ class _PlayState extends State<Play> {
 
   Widget _buildSongNameCard() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: CurvedCard(
-          bottomLeft: 24,
-          topRight: 24,
-          color: kRed,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            width: 200,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  widget.data.title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.file_download),
-                  onPressed: () async {
-                    // Fire API to download message to device
-                    id = widget.data.id.toString();
-                    downloadUrl = downloadUrl + id;
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        width: 200,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            IconButton(
+                icon: Icon(Icons.favorite, color: favColor),
+                onPressed: () {
+                  // Real action
+                  favColor == Colors.white
+                      ? addToFavorites(widget.data.id)
+                      : removeFromFavorites(widget.data.id);
 
-                    var response = await dio.get(downloadUrl);
-                    print(response);
-                  },
-                ),
-              ],
+                  // Change color of favorite icon
+                  setState(() {
+                    favColor = favColor == Colors.white
+                        ? Colors.redAccent
+                        : Colors.white;
+                    // Add particular message to favorites
+                    if (favColor == Colors.redAccent)
+                      showInfo('Message Added to Favorites');
+                    else
+                      showInfo('Message removed from Favorites');
+                  });
+                }),
+            IconButton(
+              icon: Icon(
+                Icons.file_download,
+                color: Colors.white,
+              ),
+              onPressed: () async {
+                // Fire API to download message to device
+                id = widget.data.id.toString();
+                downloadUrl = downloadUrl + id;
+
+                var response = await dio.get(downloadUrl);
+                print(response);
+              },
             ),
-          )),
+            IconButton(
+                icon: Icon(
+                  Icons.share,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  // _audioPlayerStateSubscription.resume();
+                  String message = 'Listen to the Latest message titled: ' +
+                      widget.data.title +
+                      ' by ' +
+                      widget.data.author +
+                      ' using the link provided below.\n' +
+                      widget.data.message;
+                  Share.share(message);
+                }),
+          ],
+        ),
+      ),
     );
   }
 
@@ -336,10 +423,10 @@ class _PlayState extends State<Play> {
     // print('=== Slider value: ${position} ===');
     // print('=== Slider Duration value: ${duration} ===');
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 2),
       child: Row(
         children: <Widget>[
-          Text("${positionText ?? ''}"),
+          Text("${positionText ?? ''}", style: TextStyle(color: Colors.white)),
           Expanded(
             child: duration == null
                 ? Container()
@@ -356,66 +443,96 @@ class _PlayState extends State<Play> {
                     inactiveColor: Colors.grey,
                   ),
           ),
-          Text("${durationText ?? ''}"),
+          Text("${durationText ?? ''}",
+              style: TextStyle(color: Colors.white60)),
         ],
       ),
     );
   }
 
   Widget _buildMusicController() {
-    return CurvedCard(
-      color: kGrey,
-      topLeft: 24,
-      bottomRight: 24,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            IconButton(
-                icon: Icon(
-                  Icons.favorite,
-                  color: favColor,
-                ),
-                onPressed: () {
-                  // Change color of favorite icon
-                  setState(() {
-                    favColor = favColor == Colors.white
-                        ? Colors.redAccent
-                        : Colors.white;
-                    // Add particular message to favorites
-                    if (favColor == Colors.redAccent)
-                      showInfo('Message Added to Favorites');
-                    else
-                      showInfo('Message removed from Favorites');
-                  });
-                }),
-            IconButton(icon: Icon(Icons.skip_previous), onPressed: null),
-            CurvedCard(
-              child: IconButton(
-                  icon: isPlaying ? Icon(Icons.pause) : Icon(Icons.play_arrow),
-                  onPressed: () {
-                    isPlaying ? pause() : play();
-                  }),
-              color: Color(0xff302931),
-              topLeft: 12,
-              bottomRight: 12,
+    return Padding(
+      padding: const EdgeInsets.all(5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          Expanded(
+            child: InkWell(
+              child: CircleAvatar(
+                  backgroundColor: Colors.transparent,
+                  // foregroundColor: Colors.white,
+                  child: Container(
+                    height: double.infinity,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        border: Border.all(width: 2.0, color: Colors.white),
+                        shape: BoxShape.circle),
+                    child: Icon(Icons.stop, color: Colors.white),
+                  )),
+              onTap: () {
+                // print('Mute clicked');
+                stop();
+              },
             ),
-            IconButton(icon: Icon(Icons.skip_next), onPressed: null),
-            IconButton(
-                icon: Icon(Icons.share),
-                onPressed: () {
-                  // _audioPlayerStateSubscription.resume();
-                  String message = 'Listen to the Latest message titled: ' +
-                      widget.data.title +
-                      ' by ' +
-                      widget.data.author +
-                      ' using the link provided below.\n' +
-                      widget.data.message;
-                  Share.share(message);
-                }),
-          ],
-        ),
+          ),
+          Expanded(
+            flex: 2,
+            child: InkWell(
+              child: CircleAvatar(
+                radius: 30,
+                backgroundColor: Colors.transparent,
+                child: isPlaying
+                    ? Container(
+                        child: Icon(
+                          Icons.pause,
+                          color: Colors.white,
+                          size: 45,
+                        ),
+                        height: double.infinity,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            border: Border.all(width: 2.0, color: Colors.white),
+                            shape: BoxShape.circle))
+                    : Container(
+                        child: Icon(
+                          Icons.play_arrow,
+                          size: 45,
+                          color: Colors.white,
+                        ),
+                        height: double.infinity,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            border: Border.all(width: 2.0, color: Colors.white),
+                            shape: BoxShape.circle)),
+              ),
+              onTap: () {
+                isPlaying ? pause() : play();
+              },
+            ),
+          ),
+          Expanded(
+            child: InkWell(
+              child: CircleAvatar(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                child: Container(
+                    child: Icon(Icons.volume_off, color: Colors.white),
+                    height: double.infinity,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        border: Border.all(width: 2.0, color: Colors.white),
+                        shape: BoxShape.circle)),
+              ),
+              onTap: () {
+                isMuted ? mute(false) : mute(true);
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

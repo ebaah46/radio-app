@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:radio_app/Components/button.dart';
 import 'package:radio_app/Models/message.dart';
 import 'package:radio_app/Screens/play.dart';
 
@@ -47,37 +48,37 @@ class _MessageDetailState extends State<MessageDetail> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         SizedBox(height: 70.0),
-        Icon(
-          Icons.description,
-          color: Colors.white,
-          size: 30.0,
-        ),
-        Container(
-          width: 90.0,
-          child: new Divider(color: Colors.green),
-        ),
-        SizedBox(height: 10.0),
         Text(
           widget.data.title,
-          style: TextStyle(color: Colors.white, fontSize: 25.0),
+          softWrap: true,
+          style: TextStyle(color: Colors.white, fontSize: 20.0),
+        ),
+        Container(
+          width: 190.0,
+          child: new Divider(color: Colors.green),
         ),
         SizedBox(height: 10.0),
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Expanded(
-                flex: 1,
-                child: Icon(
-                  Icons.border_color,
-                  color: Colors.white,
-                )),
-            Expanded(
                 flex: 3,
                 child: Padding(
-                    padding: EdgeInsets.only(left: 10.0),
-                    child: Text(
-                      widget.data.author,
-                      style: TextStyle(color: Colors.white),
+                    padding: EdgeInsets.only(left: 3.0),
+                    child: Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Text(
+                            'by',
+                            style: TextStyle(color: Colors.white, fontSize: 12),
+                          ),
+                        ),
+                        Text(
+                          widget.data.author,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
                     ))),
             Expanded(flex: 1, child: likeMessage())
           ],
@@ -100,14 +101,14 @@ class _MessageDetailState extends State<MessageDetail> {
           height: MediaQuery.of(context).size.height * 0.5,
           padding: EdgeInsets.all(40.0),
           width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(color: Color.fromRGBO(58, 66, 86, .9)),
+          decoration: BoxDecoration(color: Colors.white38),
           child: Center(
             child: topContentText,
           ),
         ),
         Positioned(
           left: 8.0,
-          top: 60.0,
+          top: 50.0,
           child: InkWell(
             onTap: () {
               Navigator.pop(context);
@@ -120,25 +121,25 @@ class _MessageDetailState extends State<MessageDetail> {
 
     final bottomContentText = Text(
       widget.data.description,
-      style: TextStyle(fontSize: 18.0),
+      style: TextStyle(fontSize: 16.0),
     );
     final readButton = Container(
-        padding: EdgeInsets.symmetric(vertical: 16.0),
-        width: MediaQuery.of(context).size.width,
-        child: RaisedButton(
-          onPressed: () => {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => Play(widget.data)))
-          },
-          color: Color.fromRGBO(58, 66, 86, 1.0),
-          child:
-              Text("PLAY FULL MESSAGE", style: TextStyle(color: Colors.white)),
-        ));
+      padding: EdgeInsets.symmetric(vertical: 16.0),
+      width: MediaQuery.of(context).size.width,
+      child: InkWell(
+        child: CustomButton('Play Audio Message'),
+        onTap: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => Play(widget.data)));
+        },
+      ),
+    );
     final bottomContent = Container(
       // height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
       // color: Theme.of(context).primaryColor,
-      padding: EdgeInsets.all(40.0),
+      padding:
+          EdgeInsets.only(left: 40.0, right: 40.0, top: 30.0, bottom: 30.0),
       child: Center(
         child: Column(
           children: <Widget>[bottomContentText, readButton],
@@ -147,6 +148,7 @@ class _MessageDetailState extends State<MessageDetail> {
     );
 
     return Scaffold(
+      backgroundColor: Colors.white,
       key: _globalKey,
       body: Column(
         children: <Widget>[topContent, bottomContent],

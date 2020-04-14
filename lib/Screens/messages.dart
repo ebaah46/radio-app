@@ -24,7 +24,6 @@ class _MessagesState extends State<Messages> {
     super.initState();
     messageblocBloc = BlocProvider.of<MessageblocBloc>(context);
     messageblocBloc.add(FetchMessagesEvent());
-    // reloadmessageBloc.add(ReloadAllMessagesEvent());
   }
 
   // Function to all fetchMessagesfromAPi
@@ -36,7 +35,7 @@ class _MessagesState extends State<Messages> {
 
   runMessageFetch() {
     requestMessageFetch();
-
+    setState(() {});
     print('Message fetch in background complete');
     // _refreshController.refreshCompleted();
   }

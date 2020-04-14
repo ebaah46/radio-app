@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomButton extends StatefulWidget {
-  String _buttonName;
+  final String _buttonName;
   CustomButton(this._buttonName, {Key key}) : super(key: key);
 
   @override
