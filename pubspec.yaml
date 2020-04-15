@@ -25,7 +25,7 @@ dependencies:
   isolate: ^2.0.3
   liquid_pull_to_refresh: ^1.1.1
   path_provider: ^1.6.5
-  audioplayer: ^0.8.1
+  audioplayer: ^0.7.0
   flutter_rating_bar: ^3.0.1+1
   share: ^0.6.3+6
   shared_preferences: ^0.5.6+3
@@ -40,6 +40,7 @@ dependencies:
   # webview_flutter: ^0.3.19+9
   url_launcher: ^5.4.2
   # audioplayers: ^0.15.1
+  flutter_feather_icons: ^1.0.3
 
 
 

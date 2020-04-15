@@ -85,7 +85,7 @@ class ApiController {
       // Loop through messages
       for (var object in message.data) {
         // Storing data in sqlite database
-        int res = await MessageDatabaseProvider.db.addMessagetoDB(object);
+        await MessageDatabaseProvider.db.addMessagetoDB(object);
 
         print('Saving to database complete with result');
         // print(res);

@@ -33,16 +33,16 @@ class _MessageDetailState extends State<MessageDetail> {
       }
     }
 
-    Widget likeMessage() {
-      return Container(
-        child: IconButton(
-            icon: Icon(widget.likeIcon),
-            onPressed: () {
-              // Change icon to filled Icon
-              changeIconDetails();
-            }),
-      );
-    }
+    // Widget likeMessage() {
+    //   return Container(
+    //     child: IconButton(
+    //         icon: Icon(widget.likeIcon),
+    //         onPressed: () {
+    //           // Change icon to filled Icon
+    //           changeIconDetails();
+    //         }),
+    //   );
+    // }
 
     final topContentText = Column(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:radio_app/Screens/coming.dart';
 
 class Notes extends StatefulWidget {
   static const routeName = '/notes';
@@ -11,17 +12,19 @@ class _NotesState extends State<Notes> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(centerTitle: true, title: Text('Notes')),
-      body: Container(
-        child: Container(),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('Notes'),
+        backgroundColor: Colors.green,
       ),
+      body: ComingSoon(),
       floatingActionButton: FloatingActionButton(
         elevation: 8.0,
         child: Icon(
           Icons.add,
           size: 30,
         ),
-        backgroundColor: Color(0xFF4868D8),
+        backgroundColor: Colors.green,
         onPressed: () {},
       ),
     );

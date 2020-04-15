@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:radio_app/Models/ApiController.dart';
+import 'package:radio_app/Screens/account.dart';
+import 'package:radio_app/Screens/authors.dart';
 import 'package:radio_app/Screens/coming.dart';
 import 'package:radio_app/Screens/favorites.dart';
 import 'package:radio_app/Screens/messages.dart';
 import 'package:radio_app/Screens/notes.dart';
-import 'package:radio_app/Screens/podcasts.dart';
+import 'package:radio_app/Screens/settings.dart';
+import 'package:radio_app/Screens/videos.dart';
+import 'package:radio_app/Widgets/CustomIcons.dart';
 import 'package:radio_app/bloc/favorites_bloc.dart';
 import 'package:radio_app/bloc/messagebloc_bloc.dart';
-import 'package:radio_app/live.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -22,6 +27,13 @@ class _HomePageState extends State<HomePage> {
   deleteToken() async {
     print('deleting token');
     _apiController.removeToken('token');
+  }
+
+  navToWeb(String url) async {
+    if (await canLaunch(url))
+      await launch(url, forceWebView: true, enableJavaScript: true);
+    else
+      throw 'Failed to launch $url';
   }
 
   Future<bool> _onBackPressed() {
@@ -75,7 +87,7 @@ class _HomePageState extends State<HomePage> {
                     //     onPressed: null),
                     backgroundColor: Colors.green,
                     centerTitle: true,
-                    elevation: 0.1,
+                    elevation: 0.5,
                     title: Text('EWAK Radio'),
                     actions: <Widget>[
                       IconButton(
@@ -162,10 +174,28 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             _createHeader(),
             _createDrawerItem(
-                icon: Icons.message, text: 'Messages', onTap: () {}),
+                icon: Icons.face,
+                text: 'Authors',
+                onTap: () {
+                  Navigator.of(context).push(new PageRouteBuilder(
+                    pageBuilder: (BuildContext context, _, __) {
+                      return Authors();
+                    },
+                    transitionsBuilder: (
+                      BuildContext context,
+                      Animation<double> animation,
+                      Animation<double> secondaryAnimation,
+                      Widget child,
+                    ) =>
+                        Align(
+                      child: SizeTransition(
+                        sizeFactor: animation,
+                        child: child,
+                      ),
+                    ),
+                  ));
+                }),
             // Navigator.pushReplacementNamed(context, Routes.messages)),
-            _createDrawerItem(
-                icon: Icons.favorite, text: 'Favorites', onTap: () {}),
             _createDrawerItem(
                 icon: Icons.note,
                 text: 'Notes',
@@ -188,14 +218,96 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ));
                 }),
+            _createDrawerItem(
+                icon: Icons.video_library,
+                text: 'Videos',
+                onTap: () {
+                  Navigator.of(context).push(new PageRouteBuilder(
+                    pageBuilder: (BuildContext context, _, __) {
+                      return Videos();
+                    },
+                    transitionsBuilder: (
+                      BuildContext context,
+                      Animation<double> animation,
+                      Animation<double> secondaryAnimation,
+                      Widget child,
+                    ) =>
+                        Align(
+                      child: SizeTransition(
+                        sizeFactor: animation,
+                        child: child,
+                      ),
+                    ),
+                  ));
+                }),
             Divider(),
-            _createDrawerItem(icon: Icons.collections_bookmark, text: 'Steps'),
-            _createDrawerItem(icon: Icons.face, text: 'Authors'),
-            _createDrawerItem(icon: Icons.account_box, text: 'My Account'),
+            _createDrawerItem(
+                icon: CustomIcons.facebook,
+                text: 'Facebook',
+                onTap: () {
+                  navToWeb(
+                      'https://www.facebook.com/EWAK-RADIO-105188807796569/');
+                }),
+            _createDrawerItem(
+                icon: FeatherIcons.youtube,
+                text: 'Youtube',
+                onTap: () {
+                  navToWeb(
+                      'https://www.youtube.com/channel/UCZkVG0oTg5XMIjOJDVWSe5Q');
+                }),
+            _createDrawerItem(
+                icon: Icons.account_box,
+                text: 'My Account',
+                onTap: () {
+                  Navigator.of(context).push(new PageRouteBuilder(
+                    pageBuilder: (BuildContext context, _, __) {
+                      return Account();
+                    },
+                    transitionsBuilder: (
+                      BuildContext context,
+                      Animation<double> animation,
+                      Animation<double> secondaryAnimation,
+                      Widget child,
+                    ) =>
+                        Align(
+                      child: SizeTransition(
+                        sizeFactor: animation,
+                        child: child,
+                      ),
+                    ),
+                  ));
+                }),
             Divider(),
-            _createDrawerItem(icon: Icons.settings, text: 'Settings'),
+            _createDrawerItem(
+                icon: Icons.settings,
+                text: 'Settings',
+                onTap: () {
+                  Navigator.of(context).push(new PageRouteBuilder(
+                    pageBuilder: (BuildContext context, _, __) {
+                      return Settings();
+                    },
+                    transitionsBuilder: (
+                      BuildContext context,
+                      Animation<double> animation,
+                      Animation<double> secondaryAnimation,
+                      Widget child,
+                    ) =>
+                        Align(
+                      child: SizeTransition(
+                        sizeFactor: animation,
+                        child: child,
+                      ),
+                    ),
+                  ));
+                }),
             ListTile(
-              title: Text('Version 0.0.1'),
+              title: Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Text(
+                  'Version 1.0.0',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
               onTap: () {},
             ),
           ],

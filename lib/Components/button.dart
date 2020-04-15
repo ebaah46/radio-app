@@ -13,8 +13,11 @@ class _CustomButtonState extends State<CustomButton> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: ScreenUtil.getInstance().setWidth(300),
-      height: ScreenUtil.getInstance().setHeight(100),
+      width: 250.0,
+      // ScreenUtil.getInstance().setWidth(300),
+      height: 50.0,
+      // ScreenUtil.getInstance().setHeight(100),
+      constraints: BoxConstraints(maxWidth: 250, maxHeight: 80),
       decoration: BoxDecoration(
           gradient:
               LinearGradient(colors: [Color(0xFF17ead9), Color(0xFF6078ea)]),
