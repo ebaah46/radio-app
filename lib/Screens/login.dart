@@ -147,9 +147,9 @@ class _LoginState extends State<Login> {
                             if (response == 'Unauthorized') {
                               _globalKey.currentState.showSnackBar(SnackBar(
                                 content: Text(
-                                  'User not found',
+                                  'Incorrect email or password entered',
                                   style: TextStyle(
-                                      color: Colors.white, fontSize: 18),
+                                      color: Colors.white, fontSize: 14),
                                 ),
                                 backgroundColor: Colors.redAccent,
                               ));
@@ -161,7 +161,7 @@ class _LoginState extends State<Login> {
                                 content: Text(
                                   'Login Failed',
                                   style: TextStyle(
-                                      color: Colors.white, fontSize: 18),
+                                      color: Colors.white, fontSize: 14),
                                 ),
                                 backgroundColor: Colors.redAccent,
                               ));
@@ -174,7 +174,7 @@ class _LoginState extends State<Login> {
                               content: Text(
                                 'Please enter login credentials',
                                 style: TextStyle(
-                                    color: Colors.white, fontSize: 18),
+                                    color: Colors.white, fontSize: 14),
                                 textAlign: TextAlign.left,
                               ),
                               backgroundColor: Colors.redAccent,
@@ -184,11 +184,13 @@ class _LoginState extends State<Login> {
                         child: _isLoading
                             ? Padding(
                                 padding: const EdgeInsets.only(right: 50.0),
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 5.0,
-                                  backgroundColor: Color(0xFF17ead9),
-                                ),
-                              )
+                                child: Theme(
+                                  data: Theme.of(context)
+                                      .copyWith(accentColor: Color(0xFF17ead9)),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 5.0,
+                                  ),
+                                ))
                             : CustomButton('SIGNIN'),
                       )
                     ],

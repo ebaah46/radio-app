@@ -110,11 +110,13 @@ class _RegisterState extends State<Register> {
                         child: _isRegistering
                             ? Padding(
                                 padding: const EdgeInsets.only(right: 50.0),
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 5.0,
-                                  backgroundColor: Color(0xFF17ead9),
-                                ),
-                              )
+                                child: Theme(
+                                  data: Theme.of(context)
+                                      .copyWith(accentColor: Color(0xFF17ead9)),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 5.0,
+                                  ),
+                                ))
                             : CustomButton('SIGNUP'),
                       )
                     ],

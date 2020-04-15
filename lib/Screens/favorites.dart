@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -14,7 +16,6 @@ class Favorites extends StatefulWidget {
 
 class _FavoritesState extends State<Favorites> {
   FavoritesBloc _favoritesBloc;
-  ApiController _apiController = ApiController();
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
   bool _isReloading = false;
@@ -27,6 +28,7 @@ class _FavoritesState extends State<Favorites> {
   }
 
   Future<void> reload() async {
+    print('Executing reload');
     await Future.delayed(Duration(seconds: 3));
     _refreshController.refreshCompleted();
     setState(() {
@@ -46,8 +48,7 @@ class _FavoritesState extends State<Favorites> {
         } else if (state is FavoritesLoaded) {
           return buildMessages(state.messages);
         } else if (state is FavoritesEmpty) {
-          return buildError('Test');
-          // buildEmpty();
+          return buildEmpty();
         } else if (state is FavoritesError) {
           return buildError(state.error);
         }
@@ -57,8 +58,13 @@ class _FavoritesState extends State<Favorites> {
 
   Widget buildLoading() {
     return Container(
-      child: Center(child: CircularProgressIndicator()),
-    );
+        child: Center(
+            child: Theme(
+      data: Theme.of(context).copyWith(accentColor: Color(0xFF17ead9)),
+      child: CircularProgressIndicator(
+        strokeWidth: 5.0,
+      ),
+    )));
   }
 
   Widget buildMessages(List<Data> messages) {
@@ -138,6 +144,8 @@ class _FavoritesState extends State<Favorites> {
         children: <Widget>[
           SizedBox(height: 20),
           Container(
+              height: 100.0,
+              width: 100.0,
               constraints: BoxConstraints(maxHeight: 150, maxWidth: 150),
               child: FittedBox(
                 child: Image.asset(
@@ -153,17 +161,20 @@ class _FavoritesState extends State<Favorites> {
               Center(
                   child: Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.only(top: 20.0, bottom: 10.0),
                   child: Text(
-                    'Sorry!!',
+                    'Awww!!',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
               )),
               Center(
-                  child: Text(
-                'No favorites added yet.',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                  child: Padding(
+                padding: const EdgeInsets.only(bottom: 10.0),
+                child: Text(
+                  'No favorites added yet.',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                ),
               )),
             ],
           ))
@@ -183,7 +194,8 @@ class _FavoritesState extends State<Favorites> {
         children: <Widget>[
           SizedBox(height: 20),
           Container(
-              // flex: 2,
+              height: 100.0,
+              width: 100.0,
               constraints: BoxConstraints(maxHeight: 150, maxWidth: 150),
               child: FittedBox(
                 child: Image.asset(
@@ -198,7 +210,7 @@ class _FavoritesState extends State<Favorites> {
             children: <Widget>[
               Center(
                   child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.only(top: 20.0, bottom: 10),
                 child: Text(
                   'Sorry!!',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -216,11 +228,20 @@ class _FavoritesState extends State<Favorites> {
           )),
           InkWell(
             child: _isReloading
-                ? Center(child: CircularProgressIndicator())
+                ? Center(
+                    child: Theme(
+                    data: Theme.of(context)
+                        .copyWith(accentColor: Color(0xFF17ead9)),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 5.0,
+                    ),
+                  ))
                 : CustomButton('Retry'),
             onTap: () {
               // Refresh Page
-              _isReloading = true;
+              setState(() {
+                _isReloading = true;
+              });
               reload();
             },
           )

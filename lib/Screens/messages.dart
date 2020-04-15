@@ -139,8 +139,13 @@ class _MessagesState extends State<Messages> {
 
   Widget isLoading() {
     return Container(
-      child: Center(child: CircularProgressIndicator()),
-    );
+        child: Center(
+            child: Theme(
+      data: Theme.of(context).copyWith(accentColor: Color(0xFF17ead9)),
+      child: CircularProgressIndicator(
+        strokeWidth: 5.0,
+      ),
+    )));
   }
 
   Widget hasError(String message) {
