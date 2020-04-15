@@ -80,7 +80,7 @@ class _MessageDetailState extends State<MessageDetail> {
                         ),
                       ],
                     ))),
-            Expanded(flex: 1, child: likeMessage())
+            // Expanded(flex: 1, child: likeMessage())
           ],
         ),
       ],
@@ -129,8 +129,26 @@ class _MessageDetailState extends State<MessageDetail> {
       child: InkWell(
         child: CustomButton('Play Audio Message'),
         onTap: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => Play(widget.data)));
+          // Navigator.push(context,
+          //     MaterialPageRoute(builder: (context) => Play(widget.data)));
+
+          Navigator.of(context).push(new PageRouteBuilder(
+            pageBuilder: (BuildContext context, _, __) {
+              return Play(widget.data);
+            },
+            transitionsBuilder: (
+              BuildContext context,
+              Animation<double> animation,
+              Animation<double> secondaryAnimation,
+              Widget child,
+            ) =>
+                Align(
+              child: SizeTransition(
+                sizeFactor: animation,
+                child: child,
+              ),
+            ),
+          ));
         },
       ),
     );

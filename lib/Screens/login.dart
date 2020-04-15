@@ -156,7 +156,7 @@ class _LoginState extends State<Login> {
                               setState(() {
                                 _isLoading = false;
                               });
-                            } else {
+                            } else if (response == 'Failed') {
                               _globalKey.currentState.showSnackBar(SnackBar(
                                 content: Text(
                                   'Login Failed',

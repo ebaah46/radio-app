@@ -395,11 +395,11 @@ class _PlayState extends State<Play> {
               ),
               onPressed: () async {
                 // Fire API to download message to device
-                id = widget.data.id.toString();
-                downloadUrl = downloadUrl + id;
+                // id = widget.data.id.toString();
+                // downloadUrl = downloadUrl + id;
 
-                var response = await dio.get(downloadUrl);
-                print(response);
+                // var response = await dio.get(downloadUrl);
+                // print(response);
               },
             ),
             IconButton(

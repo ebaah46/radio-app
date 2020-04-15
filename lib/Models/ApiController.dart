@@ -112,7 +112,7 @@ class ApiController {
 
   Future<String> getTokenDetails() async {
     final _prefs = await SharedPreferences.getInstance();
-    String token = _prefs.getString('token');
+    String token = _prefs.getString('token') ?? '';
     return token;
   }
 

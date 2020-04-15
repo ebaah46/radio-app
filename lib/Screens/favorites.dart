@@ -127,8 +127,26 @@ class _FavoritesState extends State<Favorites> {
         onPressed: () {},
       ),
       onTap: () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => Play(data)));
+        // Navigator.push(
+        //     context, MaterialPageRoute(builder: (context) => Play(data)));
+
+        Navigator.of(context).push(new PageRouteBuilder(
+          pageBuilder: (BuildContext context, _, __) {
+            return Play(data);
+          },
+          transitionsBuilder: (
+            BuildContext context,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+            Widget child,
+          ) =>
+              Align(
+            child: SizeTransition(
+              sizeFactor: animation,
+              child: child,
+            ),
+          ),
+        ));
       },
     );
   }

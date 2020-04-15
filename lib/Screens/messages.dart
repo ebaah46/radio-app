@@ -131,8 +131,26 @@ class _MessagesState extends State<Messages> {
         onPressed: () {},
       ),
       onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => MessageDetail(data)));
+        // Navigator.push(context,
+        //     MaterialPageRoute(builder: (context) => MessageDetail(data)));
+
+        Navigator.of(context).push(new PageRouteBuilder(
+          pageBuilder: (BuildContext context, _, __) {
+            return MessageDetail(data);
+          },
+          transitionsBuilder: (
+            BuildContext context,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+            Widget child,
+          ) =>
+              Align(
+            child: SizeTransition(
+              sizeFactor: animation,
+              child: child,
+            ),
+          ),
+        ));
       },
     );
   }
