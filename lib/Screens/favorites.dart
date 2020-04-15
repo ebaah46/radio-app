@@ -10,6 +10,7 @@ import 'package:radio_app/Screens/play.dart';
 import 'package:radio_app/bloc/favorites_bloc.dart';
 
 class Favorites extends StatefulWidget {
+  static const routeName = '/favorites';
   @override
   _FavoritesState createState() => _FavoritesState();
 }

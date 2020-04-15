@@ -141,7 +141,7 @@ class ApiController {
   Future<List<int>> get favoriteMessagesIds async {
     // State to control whether favories are empty or not
     final _prefs = await SharedPreferences.getInstance();
-    List<String> stringIds = _prefs.getStringList('favorites');
+    List<String> stringIds = _prefs.getStringList('favorites') ?? null;
     // Convert String ids to integers
     List<int> intIds = List();
     if (stringIds.isEmpty)
@@ -159,5 +159,11 @@ class ApiController {
     // Collect Integer ids
     List<int> ids = await favoriteMessagesIds;
     return await MessageDatabaseProvider.db.getMessages(ids);
+  }
+
+// Remove token for delete
+  Future<void> removeToken(String token) async {
+    final _prefs = await SharedPreferences.getInstance();
+    _prefs.remove(token);
   }
 }

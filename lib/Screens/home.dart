@@ -4,6 +4,7 @@ import 'package:radio_app/Models/ApiController.dart';
 import 'package:radio_app/Screens/coming.dart';
 import 'package:radio_app/Screens/favorites.dart';
 import 'package:radio_app/Screens/messages.dart';
+import 'package:radio_app/Screens/notes.dart';
 import 'package:radio_app/Screens/podcasts.dart';
 import 'package:radio_app/bloc/favorites_bloc.dart';
 import 'package:radio_app/bloc/messagebloc_bloc.dart';
@@ -17,6 +18,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   // int _selectedIndex = 0;
   // Widget title;
+  ApiController _apiController = ApiController();
+  deleteToken() async {
+    print('deleting token');
+    _apiController.removeToken('token');
+  }
 
   Future<bool> _onBackPressed() {
     return showDialog(
@@ -35,6 +41,7 @@ class _HomePageState extends State<HomePage> {
                 FlatButton(
                   child: Text('Yes'),
                   onPressed: () {
+                    deleteToken();
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                 )
@@ -60,7 +67,7 @@ class _HomePageState extends State<HomePage> {
               initialIndex: 1,
               length: 3,
               child: Scaffold(
-                drawer: Drawer(),
+                drawer: drawer(),
                 backgroundColor: Colors.white,
                 appBar: AppBar(
                     // leading: IconButton(
@@ -141,4 +148,96 @@ class _HomePageState extends State<HomePage> {
   //     title = _widgetOption[value];
   //   });
   // }
+
+// Drawer Widget
+
+  Widget drawer() {
+    return Drawer(
+      child: Container(
+        height: double.infinity,
+        width: double.infinity,
+        color: Colors.white,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            _createHeader(),
+            _createDrawerItem(
+                icon: Icons.message, text: 'Messages', onTap: () {}),
+            // Navigator.pushReplacementNamed(context, Routes.messages)),
+            _createDrawerItem(
+                icon: Icons.favorite, text: 'Favorites', onTap: () {}),
+            _createDrawerItem(
+                icon: Icons.note,
+                text: 'Notes',
+                onTap: () {
+                  Navigator.of(context).push(new PageRouteBuilder(
+                    pageBuilder: (BuildContext context, _, __) {
+                      return Notes();
+                    },
+                    transitionsBuilder: (
+                      BuildContext context,
+                      Animation<double> animation,
+                      Animation<double> secondaryAnimation,
+                      Widget child,
+                    ) =>
+                        Align(
+                      child: SizeTransition(
+                        sizeFactor: animation,
+                        child: child,
+                      ),
+                    ),
+                  ));
+                }),
+            Divider(),
+            _createDrawerItem(icon: Icons.collections_bookmark, text: 'Steps'),
+            _createDrawerItem(icon: Icons.face, text: 'Authors'),
+            _createDrawerItem(icon: Icons.account_box, text: 'My Account'),
+            Divider(),
+            _createDrawerItem(icon: Icons.settings, text: 'Settings'),
+            ListTile(
+              title: Text('Version 0.0.1'),
+              onTap: () {},
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+// Drawer widget components
+
+  Widget _createHeader() {
+    return DrawerHeader(
+        margin: EdgeInsets.zero,
+        padding: EdgeInsets.zero,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                fit: BoxFit.fill,
+                image: AssetImage('assets/images/background5.jpg'))),
+        child: Stack(children: <Widget>[
+          Positioned(
+              bottom: 12.0,
+              left: 16.0,
+              child: Text("EWAK Radio Ministry",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.w500))),
+        ]));
+  }
+
+  Widget _createDrawerItem(
+      {IconData icon, String text, GestureTapCallback onTap}) {
+    return ListTile(
+      title: Row(
+        children: <Widget>[
+          Icon(icon),
+          Padding(
+            padding: EdgeInsets.only(left: 8.0),
+            child: Text(text),
+          )
+        ],
+      ),
+      onTap: onTap,
+    );
+  }
 }

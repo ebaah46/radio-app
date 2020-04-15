@@ -8,6 +8,7 @@ import 'package:radio_app/bloc/messagebloc_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class Messages extends StatefulWidget {
+  static const routeName = '/messages';
   @override
   _MessagesState createState() => _MessagesState();
 }
