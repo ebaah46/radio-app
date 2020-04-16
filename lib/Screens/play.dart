@@ -9,7 +9,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:radio_app/Models/ApiController.dart';
 import 'package:radio_app/Models/message.dart';
 // import 'package:radio_app/Widgets/constants.dart';
-import 'package:audioplayer/audioplayer.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:share/share.dart';
 
 import 'dart:async';
@@ -81,7 +81,8 @@ class _PlayState extends State<Play> {
     _audioPlayerStateSubscription =
         audioPlayer.onPlayerStateChanged.listen((s) {
       if (s == AudioPlayerState.PLAYING) {
-        setState(() => duration = audioPlayer.duration);
+        audioPlayer.onDurationChanged
+            .listen((d) => setState(() => duration = d));
       } else if (s == AudioPlayerState.STOPPED) {
         onComplete();
         setState(() {
@@ -123,10 +124,17 @@ class _PlayState extends State<Play> {
   }
 
   Future mute(bool muted) async {
-    await audioPlayer.mute(muted);
-    setState(() {
-      isMuted = muted;
-    });
+    if (muted) {
+      await audioPlayer.setVolume(0.0);
+      setState(() {
+        isMuted = muted;
+      });
+    } else {
+      await audioPlayer.setVolume(0.8);
+      setState(() {
+        isMuted = false;
+      });
+    }
   }
 
   void onComplete() {
@@ -440,7 +448,9 @@ class _PlayState extends State<Play> {
                     onChanged: (double value) {
                       print(value);
 
-                      audioPlayer.seek((value / 1000).roundToDouble());
+                      audioPlayer.seek(Duration(
+                          milliseconds:
+                              duration.inMilliseconds + value.toInt()));
                     },
                     min: 0.0,
                     max: duration.inMilliseconds.toDouble(),
@@ -524,7 +534,9 @@ class _PlayState extends State<Play> {
                 backgroundColor: Colors.transparent,
                 foregroundColor: Colors.white,
                 child: Container(
-                    child: Icon(Icons.volume_off, color: Colors.white),
+                    child: isMuted
+                        ? Icon(Icons.volume_off, color: Colors.white)
+                        : Icon(Icons.volume_up, color: Colors.white),
                     height: double.infinity,
                     width: double.infinity,
                     decoration: BoxDecoration(

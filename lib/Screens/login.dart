@@ -229,7 +229,9 @@ class _LoginState extends State<Login> {
                                       strokeWidth: 5.0,
                                     ),
                                   ))
-                              : CustomButton('SIGNIN'),
+                              :Container(height:50,width: 135,
+
+                              child: CustomButton('SIGNIN')),
                         )
                       ],
                     ),
