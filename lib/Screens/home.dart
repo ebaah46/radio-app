@@ -5,6 +5,7 @@ import 'package:radio_app/Models/ApiController.dart';
 import 'package:radio_app/Screens/account.dart';
 import 'package:radio_app/Screens/authors.dart';
 import 'package:radio_app/Screens/coming.dart';
+import 'package:radio_app/Screens/downloads.dart';
 import 'package:radio_app/Screens/favorites.dart';
 import 'package:radio_app/Screens/messages.dart';
 import 'package:radio_app/Screens/notes.dart';
@@ -256,6 +257,29 @@ class _HomePageState extends State<HomePage> {
                       'https://www.youtube.com/channel/UCZkVG0oTg5XMIjOJDVWSe5Q');
                 }),
             _createDrawerItem(
+                icon: Icons.file_download,
+                text: 'Downloads',
+                onTap: () {
+                  Navigator.of(context).push(new PageRouteBuilder(
+                    pageBuilder: (BuildContext context, _, __) {
+                      return Downloads();
+                    },
+                    transitionsBuilder: (
+                      BuildContext context,
+                      Animation<double> animation,
+                      Animation<double> secondaryAnimation,
+                      Widget child,
+                    ) =>
+                        Align(
+                      child: SizeTransition(
+                        sizeFactor: animation,
+                        child: child,
+                      ),
+                    ),
+                  ));
+                }),
+            Divider(),
+            _createDrawerItem(
                 icon: Icons.account_box,
                 text: 'My Account',
                 onTap: () {
@@ -277,7 +301,6 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ));
                 }),
-            Divider(),
             _createDrawerItem(
                 icon: Icons.settings,
                 text: 'Settings',
