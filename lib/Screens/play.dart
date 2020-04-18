@@ -281,59 +281,61 @@ class _PlayState extends State<Play> {
 
   Widget _buildMusicUI() {
     return Container(
+      height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width * 0.8,
-      child: ListView(
-        physics: BouncingScrollPhysics(),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        // physics: BouncingScrollPhysics(),
         children: <Widget>[
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Center(child: _buildSongInfo(widget.data)),
-              _buildArtistCoverPic(),
-              _buildSongNameCard(),
-              _buildSongProgress(),
-              _buildMusicController(),
-            ],
-          )
+          Expanded(
+              flex: 2, child: Center(child: _buildMessageInfo(widget.data))),
+          Expanded(flex: 6, child: _buildAuthorCoverPic()),
+          Expanded(flex: 1, child: _buildMessageControl()),
+          Expanded(flex: 1, child: _buildMessageProgress()),
+          Expanded(flex: 2, child: _buildPlayerController())
         ],
       ),
     );
   }
 
-  Widget _buildSongInfo(Data data) {
+  Widget _buildMessageInfo(Data data) {
     return Container(
       margin: EdgeInsets.only(bottom: 20),
       width: double.infinity,
+      height: double.infinity,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Column(
-              textBaseline: TextBaseline.alphabetic,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  data.title,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
+            FittedBox(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                textBaseline: TextBaseline.alphabetic,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    data.title,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                    ),
                   ),
-                ),
-                SizedBox(
-                  height: 4,
-                ),
-                Text(
-                  widget.data.author,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                  SizedBox(
+                    height: 3,
                   ),
-                )
-              ],
+                  Text(
+                    widget.data.author,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                ],
+              ),
             ),
             RatingBar(
               itemSize: 20,
@@ -354,26 +356,27 @@ class _PlayState extends State<Play> {
     );
   }
 
-  Widget _buildArtistCoverPic() {
+  Widget _buildAuthorCoverPic() {
     return ClipRRect(
       borderRadius: BorderRadius.all(
         Radius.circular(5),
       ),
       child: Image.network(
         widget.data.picture,
-        height: 250,
-        width: 100,
-        fit: BoxFit.fill,
+        // height: 300,
+        // width: 100,
+        fit: BoxFit.fitHeight,
       ),
     );
   }
 
-  Widget _buildSongNameCard() {
+  Widget _buildMessageControl() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         width: 200,
+        height: MediaQuery.of(context).size.height * 0.18,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
@@ -432,7 +435,7 @@ class _PlayState extends State<Play> {
     );
   }
 
-  Widget _buildSongProgress() {
+  Widget _buildMessageProgress() {
     // print('=== Slider value: ${position} ===');
     // print('=== Slider Duration value: ${duration} ===');
     return Padding(
@@ -442,7 +445,14 @@ class _PlayState extends State<Play> {
           Text("${positionText ?? ''}", style: TextStyle(color: Colors.white)),
           Expanded(
             child: duration == null
-                ? Container()
+                ? Slider(
+                    value: 0.0,
+                    onChanged: null,
+                    min: 0.0,
+                    max: 10.0,
+                    activeColor: Colors.white,
+                    inactiveColor: Colors.white,
+                  )
                 : Slider(
                     value: position?.inMilliseconds?.toDouble() ?? 0.0,
                     onChanged: (double value) {
@@ -465,7 +475,7 @@ class _PlayState extends State<Play> {
     );
   }
 
-  Widget _buildMusicController() {
+  Widget _buildPlayerController() {
     return Padding(
       padding: const EdgeInsets.all(5),
       child: Row(
