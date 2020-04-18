@@ -16,38 +16,11 @@ class _MessageDetailState extends State<MessageDetail> {
   @override
   Widget build(BuildContext context) {
     GlobalKey<ScaffoldState> _globalKey = new GlobalKey<ScaffoldState>();
-    showInfo(String note) {
-      return _globalKey.currentState
-          .showSnackBar(SnackBar(content: Text(note)));
-    }
-
-    void changeIconDetails() {
-      if (widget.likeIcon == Icons.favorite_border) {
-        setState(() {
-          widget.likeIcon = Icons.favorite;
-        });
-        showInfo('Added to favorites');
-      } else {
-        widget.likeIcon = Icons.favorite_border;
-        showInfo('Removed from favorites');
-      }
-    }
-
-    // Widget likeMessage() {
-    //   return Container(
-    //     child: IconButton(
-    //         icon: Icon(widget.likeIcon),
-    //         onPressed: () {
-    //           // Change icon to filled Icon
-    //           changeIconDetails();
-    //         }),
-    //   );
-    // }
 
     final topContentText = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        SizedBox(height: 70.0),
+        SizedBox(height: 120.0),
         Text(
           widget.data.title,
           softWrap: true,
@@ -55,10 +28,11 @@ class _MessageDetailState extends State<MessageDetail> {
         ),
         Container(
           width: 190.0,
-          child: new Divider(color: Colors.green),
+          child: new Divider(color: Colors.white),
         ),
-        SizedBox(height: 10.0),
+        SizedBox(height: 5.0),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Expanded(
@@ -89,14 +63,28 @@ class _MessageDetailState extends State<MessageDetail> {
     final topContent = Stack(
       children: <Widget>[
         Container(
-            padding: EdgeInsets.only(left: 10.0),
-            height: MediaQuery.of(context).size.height * 0.5,
-            decoration: new BoxDecoration(
-              image: new DecorationImage(
-                image: new NetworkImage(widget.data.picture),
-                fit: BoxFit.cover,
-              ),
-            )),
+          // padding: EdgeInsets.only(left: 10.0),
+          height: MediaQuery.of(context).size.height * 0.5,
+          width: MediaQuery.of(context).size.width,
+          // decoration: new BoxDecoration(
+          //   image: new DecorationImage(
+          //     image: new NetworkImage(widget.data.picture),
+          //     fit: BoxFit.cover,
+          //   ),
+          // ),
+          child: FadeInImage.assetNetwork(
+            fadeInDuration: Duration(milliseconds: 1000),
+            // fadeOutDuration: Duration(milliseconds: 1000),
+            fadeInCurve: Curves.bounceInOut,
+            // fadeOutCurve: Curves.bounceOut,
+            placeholder: 'assets/images/loading_bar.gif',
+            placeholderCacheHeight: 50,
+            placeholderCacheWidth: 50,
+            placeholderScale: 10.1,
+            image: widget.data.picture,
+            fit: BoxFit.fill,
+          ),
+        ),
         Container(
           height: MediaQuery.of(context).size.height * 0.5,
           padding: EdgeInsets.all(40.0),
@@ -157,7 +145,7 @@ class _MessageDetailState extends State<MessageDetail> {
       width: MediaQuery.of(context).size.width,
       // color: Theme.of(context).primaryColor,
       padding:
-          EdgeInsets.only(left: 40.0, right: 40.0, top: 30.0, bottom: 30.0),
+          EdgeInsets.only(left: 30.0, right: 30.0, top: 30.0, bottom: 30.0),
       child: Center(
         child: Column(
           children: <Widget>[bottomContentText, readButton],

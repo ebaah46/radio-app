@@ -44,14 +44,19 @@ class ApiController {
     FormData formData =
         FormData.fromMap({'email': email, 'name': name, 'password': password});
     _dio.options.headers['accept'] = 'application/json';
-    Response response = await _dio
-        .post('https://radio-api.herokuapp.com/api/register', data: formData);
-    if (response.statusCode == 201) {
-      _token = response.data['token'];
-      return 'Success';
-    } else {
-      return 'failed';
-    }
+    return await _dio
+        .post('https://radio-api.herokuapp.com/api/register', data: formData)
+        .then((Response response) {
+      if (response.statusCode == 201) {
+        _token = response.data['token'];
+        return 'Success';
+      }
+    }).catchError((error) {
+      if (error.toString().contains('500'))
+        return 'Email Exists';
+      else
+        return 'failed';
+    });
   }
 
   // Fetch messages from API

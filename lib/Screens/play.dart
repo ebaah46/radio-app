@@ -22,6 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 typedef void OnError(Exception exception);
 
 enum PlayerState { stopped, playing, paused }
+enum PlayingRouteState { speakers, earpiece }
 
 class Play extends StatefulWidget {
   final Data data;
@@ -31,14 +32,12 @@ class Play extends StatefulWidget {
 }
 
 class _PlayState extends State<Play> {
-  Duration duration;
-  Duration position;
   Dio dio = Dio();
   String downloadUrl = "https://radioapp.herokuapp.com/api/messages/download/";
   String id = '';
   Color favColor = Colors.white;
-  AudioPlayer audioPlayer;
-  String kUrl = "";
+
+  // String kUrl = "";
   ApiController _apiController = ApiController();
 
   String localFilePath;
@@ -46,99 +45,162 @@ class _PlayState extends State<Play> {
   PlayerState playerState = PlayerState.stopped;
   GlobalKey<ScaffoldState> _globalKey = GlobalKey<ScaffoldState>();
 
-  get isPlaying => playerState == PlayerState.playing;
-  get isPaused => playerState == PlayerState.paused;
-
-  get durationText =>
-      duration != null ? duration.toString().split('.').first : '';
-  get positionText =>
-      position != null ? position.toString().split('.').first : '';
+  String url;
+  PlayerMode mode = PlayerMode.MEDIA_PLAYER;
 
   bool isMuted = false;
 
+  AudioPlayer _audioPlayer;
+  AudioPlayerState _audioPlayerState;
+  Duration _duration;
+  Duration _position;
+
+  PlayerState _playerState = PlayerState.stopped;
+  PlayingRouteState _playingRouteState = PlayingRouteState.speakers;
+  StreamSubscription _durationSubscription;
   StreamSubscription _positionSubscription;
-  StreamSubscription _audioPlayerStateSubscription;
+  StreamSubscription _playerCompleteSubscription;
+  StreamSubscription _playerErrorSubscription;
+  StreamSubscription _playerStateSubscription;
+
+  get _isPlaying => _playerState == PlayerState.playing;
+  get _isPaused => _playerState == PlayerState.paused;
+  get _durationText => _duration?.toString()?.split('.')?.first ?? '';
+  get _positionText => _position?.toString()?.split('.')?.first ?? '';
+
+  get _isPlayingThroughEarpiece =>
+      _playingRouteState == PlayingRouteState.earpiece;
 
   @override
   void initState() {
     super.initState();
-    initAudioPlayer();
-    kUrl = widget.data.message;
+    _initAudioPlayer();
+    url = widget.data.message;
   }
 
   @override
   void dispose() {
-    _positionSubscription.cancel();
-    _audioPlayerStateSubscription.cancel();
-    audioPlayer.stop();
+    _audioPlayer.stop();
+    _durationSubscription?.cancel();
+    _positionSubscription?.cancel();
+    _playerCompleteSubscription?.cancel();
+    _playerErrorSubscription?.cancel();
+    _playerStateSubscription?.cancel();
     super.dispose();
   }
 
-  void initAudioPlayer() {
-    audioPlayer = new AudioPlayer();
-    _positionSubscription = audioPlayer.onAudioPositionChanged
-        .listen((p) => setState(() => position = p));
-    _audioPlayerStateSubscription =
-        audioPlayer.onPlayerStateChanged.listen((s) {
-      if (s == AudioPlayerState.PLAYING) {
-        audioPlayer.onDurationChanged
-            .listen((d) => setState(() => duration = d));
-      } else if (s == AudioPlayerState.STOPPED) {
-        onComplete();
-        setState(() {
-          position = duration;
-        });
+  void _initAudioPlayer() {
+    _audioPlayer = AudioPlayer(mode: mode);
+
+    _durationSubscription = _audioPlayer.onDurationChanged.listen((duration) {
+      setState(() => _duration = duration);
+
+      // TODO implemented for iOS, waiting for android impl
+      if (Theme.of(context).platform == TargetPlatform.iOS) {
+        // (Optional) listen for notification updates in the background
+        _audioPlayer.startHeadlessService();
+
+        // set at least title to see the notification bar on ios.
+        _audioPlayer.setNotification(
+            title: 'App Name',
+            artist: 'Artist or blank',
+            albumTitle: 'Name or blank',
+            imageUrl: 'url or blank',
+            forwardSkipInterval: const Duration(seconds: 30), // default is 30s
+            backwardSkipInterval: const Duration(seconds: 30), // default is 30s
+            duration: duration,
+            elapsedTime: Duration(seconds: 0));
       }
-    }, onError: (msg) {
+    });
+
+    _positionSubscription =
+        _audioPlayer.onAudioPositionChanged.listen((p) => setState(() {
+              _position = p;
+            }));
+
+    _playerCompleteSubscription =
+        _audioPlayer.onPlayerCompletion.listen((event) {
+      _onComplete();
       setState(() {
-        playerState = PlayerState.stopped;
-        duration = new Duration(seconds: 0);
-        position = new Duration(seconds: 0);
+        _position = _duration;
       });
     });
-  }
 
-  Future play() async {
-    await audioPlayer.play(kUrl);
-    setState(() {
-      playerState = PlayerState.playing;
+    _playerErrorSubscription = _audioPlayer.onPlayerError.listen((msg) {
+      print('audioPlayer error : $msg');
+      setState(() {
+        _playerState = PlayerState.stopped;
+        _duration = Duration(seconds: 0);
+        _position = Duration(seconds: 0);
+      });
     });
-  }
 
-  Future _playLocal() async {
-    await audioPlayer.play(localFilePath, isLocal: true);
-    setState(() => playerState = PlayerState.playing);
-  }
-
-  Future pause() async {
-    await audioPlayer.pause();
-    setState(() => playerState = PlayerState.paused);
-  }
-
-  Future stop() async {
-    await audioPlayer.stop();
-    setState(() {
-      playerState = PlayerState.stopped;
-      position = new Duration();
+    _audioPlayer.onPlayerStateChanged.listen((state) {
+      if (!mounted) return;
+      setState(() {
+        _audioPlayerState = state;
+      });
     });
+
+    _audioPlayer.onNotificationPlayerStateChanged.listen((state) {
+      if (!mounted) return;
+      setState(() => _audioPlayerState = state);
+    });
+
+    _playingRouteState = PlayingRouteState.speakers;
+  }
+
+  Future<int> _play() async {
+    final playPosition = (_position != null &&
+            _duration != null &&
+            _position.inMilliseconds > 0 &&
+            _position.inMilliseconds < _duration.inMilliseconds)
+        ? _position
+        : null;
+    final result = await _audioPlayer.play(url, position: playPosition);
+    if (result == 1) setState(() => _playerState = PlayerState.playing);
+
+    // default playback rate is 1.0
+    // this should be called after _audioPlayer.play() or _audioPlayer.resume()
+    // this can also be called everytime the user wants to change playback rate in the UI
+    _audioPlayer.setPlaybackRate(playbackRate: 1.0);
+
+    return result;
+  }
+
+  Future<int> _pause() async {
+    final result = await _audioPlayer.pause();
+    if (result == 1) setState(() => _playerState = PlayerState.paused);
+    return result;
+  }
+
+  Future<int> _stop() async {
+    final result = await _audioPlayer.stop();
+    if (result == 1) {
+      setState(() {
+        _playerState = PlayerState.stopped;
+        _position = Duration();
+      });
+    }
+    return result;
   }
 
   Future mute(bool muted) async {
     if (muted) {
-      await audioPlayer.setVolume(0.0);
+      await _audioPlayer.setVolume(0.0);
       setState(() {
         isMuted = muted;
       });
     } else {
-      await audioPlayer.setVolume(0.8);
+      await _audioPlayer.setVolume(0.8);
       setState(() {
         isMuted = false;
       });
     }
   }
 
-  void onComplete() {
-    setState(() => playerState = PlayerState.stopped);
+  void _onComplete() {
+    setState(() => _playerState = PlayerState.stopped);
   }
 
   Future<Uint8List> _loadFileBytes(String url, {OnError onError}) async {
@@ -149,21 +211,6 @@ class _PlayState extends State<Play> {
       rethrow;
     }
     return bytes;
-  }
-
-  Future _loadFile() async {
-    final bytes = await _loadFileBytes(kUrl,
-        onError: (Exception exception) =>
-            print('_loadFile => exception $exception'));
-
-    final dir = await getApplicationDocumentsDirectory();
-    final file = new File('${dir.path}/${widget.data.title}.mp3');
-
-    await file.writeAsBytes(bytes);
-    if (await file.exists())
-      setState(() {
-        localFilePath = file.path;
-      });
   }
 
   // Show Snackbar
@@ -240,10 +287,6 @@ class _PlayState extends State<Play> {
       ),
     );
   }
-
-  // Widget _buildBackgroundBox() {
-  //   return Container();
-  // }
 
   Widget blurWidget(Data data) {
     var f = data.picture == null
@@ -407,10 +450,7 @@ class _PlayState extends State<Play> {
               ),
               onPressed: () async {
                 // Fire API to download message to device
-                // id = widget.data.id.toString();
-                // downloadUrl = downloadUrl + id;
 
-                // var response = await dio.get(downloadUrl);
                 // print(response);
               },
             ),
@@ -436,40 +476,40 @@ class _PlayState extends State<Play> {
   }
 
   Widget _buildMessageProgress() {
-    // print('=== Slider value: ${position} ===');
-    // print('=== Slider Duration value: ${duration} ===');
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
+      padding: const EdgeInsets.only(right: 2, left: 2, top: 20),
       child: Row(
         children: <Widget>[
-          Text("${positionText ?? ''}", style: TextStyle(color: Colors.white)),
+          Text("${_positionText ?? ''}", style: TextStyle(color: Colors.white)),
           Expanded(
-            child: duration == null
-                ? Slider(
-                    value: 0.0,
-                    onChanged: null,
-                    min: 0.0,
-                    max: 10.0,
-                    activeColor: Colors.white,
-                    inactiveColor: Colors.white,
+            child: _duration == null
+                ? SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                        disabledThumbColor: Theme.of(context).cardColor,
+                        disabledActiveTrackColor: Theme.of(context).cardColor),
+                    child: Slider(
+                      // divisions: 10,
+                      max: 100,
+                      value: 100,
+                      onChanged: null,
+                    ),
                   )
                 : Slider(
-                    value: position?.inMilliseconds?.toDouble() ?? 0.0,
-                    onChanged: (double value) {
-                      print(value);
-
-                      audioPlayer.seek(Duration(
-                          milliseconds:
-                              duration.inMilliseconds + value.toInt()));
+                    activeColor: Theme.of(context).cardColor,
+                    onChanged: (v) {
+                      final Position = v * _duration.inMilliseconds;
+                      _audioPlayer
+                          .seek(Duration(milliseconds: Position.round()));
                     },
-                    min: 0.0,
-                    max: duration.inMilliseconds.toDouble(),
-                    activeColor: Colors.white,
-                    inactiveColor: Colors.grey,
+                    value: (_position != null &&
+                            _duration != null &&
+                            _position.inMilliseconds > 0 &&
+                            _position.inMilliseconds < _duration.inMilliseconds)
+                        ? _position.inMilliseconds / _duration.inMilliseconds
+                        : 0.0,
                   ),
           ),
-          Text("${durationText ?? ''}",
-              style: TextStyle(color: Colors.white60)),
+          Text("${_durationText ?? ''}", style: TextStyle(color: Colors.white)),
         ],
       ),
     );
@@ -497,7 +537,7 @@ class _PlayState extends State<Play> {
                   )),
               onTap: () {
                 // print('Mute clicked');
-                stop();
+                _stop();
               },
             ),
           ),
@@ -507,7 +547,7 @@ class _PlayState extends State<Play> {
               child: CircleAvatar(
                 radius: 30,
                 backgroundColor: Colors.transparent,
-                child: isPlaying
+                child: _isPlaying
                     ? Container(
                         child: Icon(
                           Icons.pause,
@@ -534,7 +574,7 @@ class _PlayState extends State<Play> {
                             shape: BoxShape.circle)),
               ),
               onTap: () {
-                isPlaying ? pause() : play();
+                _isPlaying ? _pause() : _play();
               },
             ),
           ),

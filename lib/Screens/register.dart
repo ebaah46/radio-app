@@ -83,9 +83,22 @@ class _RegisterState extends State<Register> {
                               setState(() {
                                 _isRegistering = false;
                               });
-                              MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      HomePage());
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          HomePage()));
+                            } else if (response == 'Email Exists') {
+                              setState(() {
+                                _isRegistering = false;
+                              });
+                              _globalKey.currentState.showSnackBar(SnackBar(
+                                content: Text(
+                                  'User already exists',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                backgroundColor: Colors.redAccent,
+                              ));
                             } else {
                               // Do nothing but show a snackbar to alert user on error
                               _globalKey.currentState.showSnackBar(SnackBar(
@@ -100,8 +113,7 @@ class _RegisterState extends State<Register> {
                             _globalKey.currentState.showSnackBar(SnackBar(
                               content: Text(
                                 'Please enter registeration credentials',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 18),
+                                style: TextStyle(color: Colors.white),
                               ),
                               backgroundColor: Colors.redAccent,
                             ));
@@ -109,7 +121,7 @@ class _RegisterState extends State<Register> {
                         },
                         child: _isRegistering
                             ? Padding(
-                                padding: const EdgeInsets.only(right: 50.0),
+                                padding: const EdgeInsets.only(right: 15.0),
                                 child: Theme(
                                   data: Theme.of(context)
                                       .copyWith(accentColor: Color(0xFF17ead9)),
