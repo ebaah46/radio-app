@@ -14,7 +14,7 @@ class ComingSoon extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          SizedBox(height: 20),
+          // SizedBox(height: 20),
           Container(
               height: 150.0,
               width: 150.0,
