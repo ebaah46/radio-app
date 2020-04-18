@@ -1,13 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:radio_app/Screens/favorites.dart';
+import 'package:radio_app/Screens/messages.dart';
 
-class Live extends StatefulWidget {
-  @override
-  _LiveState createState() => _LiveState();
-}
-
-class _LiveState extends State<Live> {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
+class Routes {
+  static const String messages = Messages.routeName;
+  static const String favorites = Favorites.routeName;
+  static const String notes = Favorites.routeName;
 }
