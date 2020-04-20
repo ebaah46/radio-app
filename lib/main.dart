@@ -5,10 +5,17 @@ import 'package:radio_app/Screens/home.dart';
 import 'package:radio_app/Screens/login.dart';
 // import 'package:radio_app/Screens/messages.dart';
 // import 'package:radio_app/bloc/messagebloc_bloc.dart';
+import 'package:catcher/catcher_plugin.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyApp());
+  CatcherOptions debugOptions =
+      CatcherOptions(DialogReportMode(), [ConsoleHandler()]);
+  CatcherOptions releaseOptions = CatcherOptions(DialogReportMode(), [
+    EmailManualHandler(["ebaah46@yahoo.com"])
+  ]);
+  // runApp(MyApp());
+  Catcher(MyApp(), debugConfig: debugOptions, releaseConfig: releaseOptions);
 }
 
 // Get User Auth State

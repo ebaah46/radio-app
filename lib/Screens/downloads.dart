@@ -9,6 +9,12 @@ class Downloads extends StatefulWidget {
 class _DownloadsState extends State<Downloads> {
   @override
   Widget build(BuildContext context) {
-    return ComingSoon();
+    return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+            centerTitle: true,
+            title: Text('Downloads'),
+            backgroundColor: Colors.green),
+        body: ComingSoon());
   }
 }

@@ -1,9 +1,11 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:radio_app/Models/ApiController.dart';
 import 'package:radio_app/Models/message.dart';
@@ -48,6 +50,7 @@ class _PlayState extends State<Play> {
   PlayerMode mode = PlayerMode.MEDIA_PLAYER;
 
   bool isMuted = false;
+  bool isDownloaded = false;
 
   AudioPlayer _audioPlayer;
   AudioPlayerState _audioPlayerState;
@@ -210,6 +213,23 @@ class _PlayState extends State<Play> {
       rethrow;
     }
     return bytes;
+  }
+
+  Future _loadFile() async {
+    final bytes = await readBytes(url);
+    final dir = await getApplicationDocumentsDirectory();
+    String title = widget.data.title.trim();
+    final file = File('${dir.path}/$title.mp3');
+    print('Starting download');
+    await file.writeAsBytes(bytes);
+    if (await file.exists()) {
+      print('Done downloading');
+      showInfo('Message, ${widget.data.title} downloaded');
+      setState(() {
+        localFilePath = file.path;
+      });
+      // showInfo('Message ${widget.data.title} downloaded');
+    }
   }
 
   // Show Snackbar
@@ -381,16 +401,19 @@ class _PlayState extends State<Play> {
             ),
             RatingBar(
               itemSize: 20,
-              glowColor: Colors.white,
+              glowColor: Colors.red[400],
               allowHalfRating: true,
-              unratedColor: Colors.grey,
+              unratedColor: Colors.white,
               itemCount: 5,
+              glowRadius: 5,
               itemBuilder: (context, _) => Icon(
                 Icons.star,
               ),
               initialRating: 0.0,
               direction: Axis.horizontal,
-              onRatingUpdate: (d) {},
+              onRatingUpdate: (d) {
+                print('Updated $d');
+              },
             ),
           ],
         ),
@@ -447,10 +470,38 @@ class _PlayState extends State<Play> {
                 Icons.file_download,
                 color: Colors.white,
               ),
-              onPressed: () async {
-                // Fire API to download message to device
+              onPressed: () {
+                // Download message and save on device
+                print('About to download message ${widget.data.title}');
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text('Download Message'),
+                      content: Text(
+                          'Are you sure you want to download this message?'),
+                      actions: <Widget>[
+                        FlatButton(
+                          child: Text('No'),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            showInfo('Download aborted');
+                          },
+                        ),
+                        FlatButton(
+                          child: Text('Yes'),
+                          onPressed: () {
+                            // deleteToken();
+                            // Navigator.of(context).popUntil((route) => route.isFirst);
+                            _loadFile();
 
-                // print(response);
+                            Navigator.pop(context);
+                          },
+                        )
+                      ],
+                    );
+                  },
+                );
               },
             ),
             IconButton(
@@ -460,6 +511,7 @@ class _PlayState extends State<Play> {
                 ),
                 onPressed: () {
                   // _audioPlayerStateSubscription.resume();
+                  print('About to share message ${widget.data.title}');
                   String message = 'Listen to the Latest message titled: ' +
                       widget.data.title +
                       ' by ' +
@@ -489,7 +541,7 @@ class _PlayState extends State<Play> {
                     child: Slider(
                       // divisions: 10,
                       max: 100,
-                      value: 100,
+                      value: 0,
                       onChanged: null,
                     ),
                   )
