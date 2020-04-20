@@ -541,7 +541,7 @@ class _PlayState extends State<Play> {
                     child: Slider(
                       // divisions: 10,
                       max: 100,
-                      value: 100,
+                      value: 0,
                       onChanged: null,
                     ),
                   )

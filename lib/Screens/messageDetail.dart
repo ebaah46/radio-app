@@ -107,49 +107,52 @@ class _MessageDetailState extends State<MessageDetail> {
       ],
     );
 
-    final bottomContentText = Text(
-      widget.data.description,
-      style: TextStyle(fontSize: 16.0),
-    );
-    final readButton = Container(
-      padding: EdgeInsets.symmetric(vertical: 16.0),
-      width: MediaQuery.of(context).size.width,
-      child: InkWell(
-        child: CustomButton('Play Audio Message'),
-        onTap: () {
-          // Navigator.push(context,
-          //     MaterialPageRoute(builder: (context) => Play(widget.data)));
-
-          Navigator.of(context).push(new PageRouteBuilder(
-            pageBuilder: (BuildContext context, _, __) {
-              return Play(widget.data);
-            },
-            transitionsBuilder: (
-              BuildContext context,
-              Animation<double> animation,
-              Animation<double> secondaryAnimation,
-              Widget child,
-            ) =>
-                Align(
-              child: SizeTransition(
-                sizeFactor: animation,
-                child: child,
+    final bottomContentText = SingleChildScrollView(
+        padding: EdgeInsets.all(5),
+        child: Text(
+          widget.data.description,
+          style: TextStyle(fontSize: 15.0, wordSpacing: 1.0),
+        ));
+    final readButton = FittedBox(
+      fit: BoxFit.contain,
+      child: Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: InkWell(
+          child: CustomButton('Play Audio Message'),
+          onTap: () {
+            Navigator.of(context).push(new PageRouteBuilder(
+              pageBuilder: (BuildContext context, _, __) {
+                return Play(widget.data);
+              },
+              transitionsBuilder: (
+                BuildContext context,
+                Animation<double> animation,
+                Animation<double> secondaryAnimation,
+                Widget child,
+              ) =>
+                  Align(
+                child: SizeTransition(
+                  sizeFactor: animation,
+                  child: child,
+                ),
               ),
-            ),
-          ));
-        },
+            ));
+          },
+        ),
       ),
     );
     final bottomContent = Container(
-      // height: MediaQuery.of(context).size.height,
+      height: MediaQuery.of(context).size.height * 0.5,
       width: MediaQuery.of(context).size.width,
       // color: Theme.of(context).primaryColor,
       padding:
-          EdgeInsets.only(left: 30.0, right: 30.0, top: 30.0, bottom: 30.0),
-      child: Center(
-        child: Column(
-          children: <Widget>[bottomContentText, readButton],
-        ),
+          EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0, bottom: 10.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Expanded(child: bottomContentText),
+          readButton,
+        ],
       ),
     );
 
@@ -157,7 +160,11 @@ class _MessageDetailState extends State<MessageDetail> {
       backgroundColor: Colors.white,
       key: _globalKey,
       body: Column(
-        children: <Widget>[topContent, bottomContent],
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          Expanded(child: topContent),
+          Expanded(child: bottomContent)
+        ],
       ),
     );
   }

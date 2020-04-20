@@ -105,223 +105,239 @@ class _LoginState extends State<Login> {
                 Expanded(
                   child: Padding(
                     padding: EdgeInsets.only(top: 30.0),
-                    child: Image.network(
-                        "https://raw.githubusercontent.com/vcardona/Flutter-Login-Page-UI-Explained/master/assets/image_01.png"),
+                    child: Image.asset('assets/images/back1.png'),
                   ),
                 ),
-                // Expanded(
-                //   child: Container(),
-                // ),
                 Expanded(
-                  child: Image.network(
-                      "https://raw.githubusercontent.com/vcardona/Flutter-Login-Page-UI-Explained/master/assets/image_02.png"),
+                  child: Image.asset('assets/images/back2.png'),
                 )
               ],
             ),
             SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.only(left: 28.0, right: 28.0, top: 35.0),
-                child: Column(
-                  children: <Widget>[
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Image.asset(
-                        "assets/images/logo.jpeg",
-                        width: ScreenUtil.getInstance().setWidth(230),
-                        height: ScreenUtil.getInstance().setHeight(230),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height,
+                    maxWidth: MediaQuery.of(context).size.width),
+                child: Padding(
+                  padding: EdgeInsets.only(left: 28.0, right: 28.0, top: 35.0),
+                  child: Column(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 2,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.asset(
+                            "assets/images/logo.jpeg",
+                            width: ScreenUtil.getInstance().setWidth(230),
+                            height: ScreenUtil.getInstance().setHeight(230),
+                          ),
+                        ),
                       ),
-                    ),
-                    SizedBox(
-                      height: ScreenUtil.getInstance().setHeight(100),
-                    ),
-                    FormCard(),
-                    SizedBox(height: ScreenUtil.getInstance().setHeight(40)),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Row(
+                      SizedBox(
+                        height: ScreenUtil.getInstance().setHeight(50),
+                      ),
+                      Expanded(flex: 5, child: FormCard()),
+                      SizedBox(height: ScreenUtil.getInstance().setHeight(20)),
+                      Expanded(
+                        flex: 2,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            SizedBox(
-                              width: 12.0,
+                            Row(
+                              children: <Widget>[
+                                SizedBox(
+                                  width: 12.0,
+                                ),
+                                GestureDetector(
+                                  onTap: _radio,
+                                  child: radioButton(_isSelected),
+                                ),
+                                SizedBox(
+                                  width: 8.0,
+                                ),
+                                Text("Remember me",
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        fontFamily: "Poppins-Medium"))
+                              ],
                             ),
-                            GestureDetector(
-                              onTap: _radio,
-                              child: radioButton(_isSelected),
-                            ),
-                            SizedBox(
-                              width: 8.0,
-                            ),
-                            Text("Remember me",
-                                style: TextStyle(
-                                    fontSize: 12, fontFamily: "Poppins-Medium"))
+                            InkWell(
+                              onTap: () async {
+                                if (formLoginReadyState) {
+                                  setState(() {
+                                    _isLoading = true;
+                                  });
+                                  // print('After initialization');
+                                  // print(loginDetails);
+                                  ApiController _apiController =
+                                      ApiController();
+                                  String response = await _apiController.login(
+                                      loginDetails['email'],
+                                      loginDetails['password']);
+                                  print(response);
+                                  if (response == "Success") {
+                                    setState(() {
+                                      _isLoading = false;
+                                    });
+                                    // Go to the homepage
+                                    print('Navigating to homepage');
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                HomePage()));
+                                    print('Login Complete');
+                                  }
+                                  if (response == 'Unauthorized') {
+                                    _globalKey.currentState
+                                        .showSnackBar(SnackBar(
+                                      content: Text(
+                                        'Incorrect email or password entered',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 14),
+                                      ),
+                                      backgroundColor: Colors.redAccent,
+                                    ));
+                                    setState(() {
+                                      _isLoading = false;
+                                    });
+                                  } else if (response == 'Failed') {
+                                    _globalKey.currentState
+                                        .showSnackBar(SnackBar(
+                                      content: Text(
+                                        'Login Failed',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 14),
+                                      ),
+                                      backgroundColor: Colors.redAccent,
+                                    ));
+                                    setState(() {
+                                      _isLoading = false;
+                                    });
+                                  }
+                                } else {
+                                  _globalKey.currentState.showSnackBar(SnackBar(
+                                    content: Text(
+                                      'Please enter valid login credentials',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 14),
+                                      textAlign: TextAlign.left,
+                                    ),
+                                    backgroundColor: Colors.redAccent,
+                                  ));
+                                }
+                              },
+                              child: _isLoading
+                                  ? Padding(
+                                      padding:
+                                          const EdgeInsets.only(right: 50.0),
+                                      child: Theme(
+                                        data: Theme.of(context).copyWith(
+                                            accentColor: Color(0xFF17ead9)),
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 5.0,
+                                        ),
+                                      ))
+                                  : Container(
+                                      height: 50,
+                                      width: 135,
+                                      child: CustomButton('SIGNIN')),
+                            )
                           ],
                         ),
-                        InkWell(
-                          onTap: () async {
-                            if (formLoginReadyState) {
-                              setState(() {
-                                _isLoading = true;
-                              });
-                              // print('After initialization');
-                              // print(loginDetails);
-                              ApiController _apiController = ApiController();
-                              String response = await _apiController.login(
-                                  loginDetails['email'],
-                                  loginDetails['password']);
-                              print(response);
-                              if (response == "Success") {
-                                setState(() {
-                                  _isLoading = false;
-                                });
-                                // Go to the homepage
-                                print('Navigating to homepage');
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            HomePage()));
-                                print('Login Complete');
-                              }
-                              if (response == 'Unauthorized') {
-                                _globalKey.currentState.showSnackBar(SnackBar(
-                                  content: Text(
-                                    'Incorrect email or password entered',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 14),
-                                  ),
-                                  backgroundColor: Colors.redAccent,
-                                ));
-                                setState(() {
-                                  _isLoading = false;
-                                });
-                              } else if (response == 'Failed') {
-                                _globalKey.currentState.showSnackBar(SnackBar(
-                                  content: Text(
-                                    'Login Failed',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 14),
-                                  ),
-                                  backgroundColor: Colors.redAccent,
-                                ));
-                                setState(() {
-                                  _isLoading = false;
-                                });
-                              }
-                            } else {
-                              _globalKey.currentState.showSnackBar(SnackBar(
-                                content: Text(
-                                  'Please enter login credentials',
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 14),
-                                  textAlign: TextAlign.left,
-                                ),
-                                backgroundColor: Colors.redAccent,
-                              ));
-                            }
-                          },
-                          child: _isLoading
-                              ? Padding(
-                                  padding: const EdgeInsets.only(right: 50.0),
-                                  child: Theme(
-                                    data: Theme.of(context).copyWith(
-                                        accentColor: Color(0xFF17ead9)),
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 5.0,
-                                    ),
-                                  ))
-                              :Container(height:50,width: 135,
-
-                              child: CustomButton('SIGNIN')),
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      height: ScreenUtil.getInstance().setHeight(30),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        horizontalLine(),
-                        Text("Social Media Pages",
-                            style: TextStyle(
-                                fontSize: 16.0, fontFamily: "Poppins-Medium")),
-                        horizontalLine()
-                      ],
-                    ),
-                    SizedBox(
-                      height: ScreenUtil.getInstance().setHeight(40),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Expanded(
-                          child: SocialIcon(
-                            colors: [
-                              Color(0xFF102397),
-                              Color(0xFF187adf),
-                              Color(0xFF00eaf8),
-                            ],
-                            iconData: CustomIcons.facebook,
-                            onPressed: () {
-                              navToWeb(
-                                  'https://www.facebook.com/EWAK-RADIO-105188807796569/');
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          child: SocialIcon(
-                            colors: [
-                              Color(0xFFff4f38),
-                              Color(0xFFff355d),
-                            ],
-                            iconData: CustomIcons.googlePlus,
-                            onPressed: () {
-                              navToWeb(
-                                  'https://www.google.com/search?q=EWAK+Radio&oq=EWAK+Radio&aqs=chrome..69i57j69i60l3.13999j0j7&sourceid=chrome&ie=UTF-8');
-                            },
-                          ),
-                        ),
-                        Expanded(
-                            child: InkWell(
-                          child: CircleAvatar(
-                            backgroundColor: Colors.transparent,
-                            child: Image(
-                              image: AssetImage('assets/images/yt.png'),
+                      ),
+                      SizedBox(
+                        height: ScreenUtil.getInstance().setHeight(20),
+                      ),
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.center,
+                      //   children: <Widget>[
+                      //     horizontalLine(),
+                      //     Text("Social Media Pages",
+                      //         style: TextStyle(
+                      //             fontSize: 16.0, fontFamily: "Poppins-Medium")),
+                      //     horizontalLine()
+                      //   ],
+                      // ),
+                      // SizedBox(
+                      //   height: ScreenUtil.getInstance().setHeight(40),
+                      // ),
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.center,
+                      //   children: <Widget>[
+                      //     Expanded(
+                      //       child: SocialIcon(
+                      //         colors: [
+                      //           Color(0xFF102397),
+                      //           Color(0xFF187adf),
+                      //           Color(0xFF00eaf8),
+                      //         ],
+                      //         iconData: CustomIcons.facebook,
+                      //         onPressed: () {
+                      //           navToWeb(
+                      //               'https://www.facebook.com/EWAK-RADIO-105188807796569/');
+                      //         },
+                      //       ),
+                      //     ),
+                      //     Expanded(
+                      //       child: SocialIcon(
+                      //         colors: [
+                      //           Color(0xFFff4f38),
+                      //           Color(0xFFff355d),
+                      //         ],
+                      //         iconData: CustomIcons.googlePlus,
+                      //         onPressed: () {
+                      //           navToWeb(
+                      //               'https://www.google.com/search?q=EWAK+Radio&oq=EWAK+Radio&aqs=chrome..69i57j69i60l3.13999j0j7&sourceid=chrome&ie=UTF-8');
+                      //         },
+                      //       ),
+                      //     ),
+                      //     Expanded(
+                      //         child: InkWell(
+                      //       child: CircleAvatar(
+                      //         backgroundColor: Colors.transparent,
+                      //         child: Image(
+                      //           image: AssetImage('assets/images/yt.png'),
+                      //         ),
+                      //       ),
+                      //       onTap: () {
+                      //         navToWeb(
+                      //             'https://www.youtube.com/channel/UCZkVG0oTg5XMIjOJDVWSe5Q');
+                      //       },
+                      //     )),
+                      //   ],
+                      // ),
+                      // SizedBox(
+                      //   height: ScreenUtil.getInstance().setHeight(30),
+                      // ),
+                      Row(
+                        // crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "New User?",
+                              style: TextStyle(fontFamily: "Poppins-Medium"),
                             ),
                           ),
-                          onTap: () {
-                            navToWeb(
-                                'https://www.youtube.com/channel/UCZkVG0oTg5XMIjOJDVWSe5Q');
-                          },
-                        )),
-                      ],
-                    ),
-                    SizedBox(
-                      height: ScreenUtil.getInstance().setHeight(30),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          "New User?",
-                          style: TextStyle(fontFamily: "Poppins-Medium"),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        Register()));
-                          },
-                          child: Text("SignUp",
-                              style: TextStyle(
-                                  color: Color(0xFF5d74e3),
-                                  fontFamily: "Poppins-Bold")),
-                        )
-                      ],
-                    )
-                  ],
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          Register()));
+                            },
+                            child: Text("SignUp",
+                                style: TextStyle(
+                                    color: Color(0xFF5d74e3),
+                                    fontFamily: "Poppins-Bold")),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
                 ),
               ),
             )

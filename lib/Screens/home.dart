@@ -115,12 +115,10 @@ class _HomePageState extends State<HomePage> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
                         Expanded(
-                          child: Image.network(
-                              "https://raw.githubusercontent.com/vcardona/Flutter-Login-Page-UI-Explained/master/assets/image_02.png"),
+                          child: Image.asset('assets/images/back1.png'),
                         ),
                         Expanded(
-                          child: Image.network(
-                              "https://raw.githubusercontent.com/vcardona/Flutter-Login-Page-UI-Explained/master/assets/image_02.png"),
+                          child: Image.asset('assets/images/back2.png'),
                         )
                       ],
                     ),

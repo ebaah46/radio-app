@@ -49,6 +49,7 @@ class ApiController {
         .then((Response response) {
       if (response.statusCode == 201) {
         _token = response.data['token'];
+        storeTokenDetails(_token, email, password);
         return 'Success';
       }
     }).catchError((error) {
